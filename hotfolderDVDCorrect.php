@@ -2,10 +2,41 @@
 
 include "settings/config.php";
 
-$partner_ids_to_skip = array(426, 120, 210, 407, 201, 313, 374, 445, 170);
+$partner_ids_to_skip = array();
+
+$sql = "SELECT ID from partner WHERE bekommtDVDArtikel = 0;";
+$result = mysql_query($sql);
+if(!$result) {
+    throw new Exception("Konnte die Partner-IDs nicht abfragen");
+}
+
+while ($row = mysql_fetch_array($result)) {
+    $partner_ids_to_skip[] = $row[0];
+}
+
+$sql = "SELECT NAS_IP, DVD_LOG_PATH FROM autohotfoldereinstellungen;";
+$result = mysql_query($sql);
+if(!$result) {
+    throw new Exception("Konnte die NAS-IP nicht abfragen");
+}
+
+if(mysql_num_rows($result) != 1) {
+    throw new Exception("Konnte die NAS-IP nicht eindeutig feststellen");
+}
+
+$row = mysql_fetch_assoc($result);
+if(!$row) {
+    throw new Exception("Konnte die NAS-IP nicht auslesen");
+}
+
+$nas_IP = $row["NAS_IP"];
+$log_path = $row["DVD_LOG_PATH"];
+
 $script_id = 92;
 $userid = 619;
-$dvd_log_path = "\\\\192.168.0.18\\Diaproduktion\\Hotfolder\\DVD-Log";
+$dvd_log_path = str_replace("/share/CACHEDEV1_DATA", "", $log_path);
+$dvd_log_path = str_replace("/", "\\", $dvd_log_path);
+$dvd_log_path = "\\\\".$nas_IP.$dvd_log_path;
 
 try {
     if(!checkScriptcontrol($script_id)) {
