@@ -1,10 +1,10 @@
 <?php
 
 if(!isset($included)) {
-    $url = explode('/',$_SERVER['REQUEST_URI']);
+    $url = explode("/",$_SERVER["REQUEST_URI"]);
     $url = $url[count($url)-1];
-    if($url!='index.php')
-        die('Fehler');
+    if($url!="index.php")
+        die("Fehler");
 }
 
 checkLogin();
@@ -12,23 +12,23 @@ checkRight(21);
 
 echo "<a href='?section=settingsOverview'>zurück</a><br/><br/>\n";
 
-$action = isset($_POST['action']) ? $_POST['action'] : (isset($_GET['action']) ? $_GET['action'] : '');
-$message = '';
+$action = isset($_POST["action"]) ? $_POST["action"] : (isset($_GET["action"]) ? $_GET["action"] : "");
+$message = "";
 
 switch ($action) {
-    case 'update_hotfolder_settings':
+    case "update_hotfolder_settings":
         $message = updateHotfolderSettings();
         break;
-    case 'update_general_settings':
+    case "update_general_settings":
         $message = updateGeneralSettings();
         break;
-    case 'add_workflow':
+    case "add_workflow":
         $message = addWorkflow();
         break;
-    case 'update_workflow':
+    case "update_workflow":
         $message = updateWorkflow();
         break;
-    case 'delete_workflow':
+    case "delete_workflow":
         $message = deleteWorkflow();
         break;
 }
@@ -47,10 +47,10 @@ function getGeneralSettings() {
 
 function updateHotfolderSettings() {
     $fields = array(
-        'NAS_IP', 'INPUT_PATH', 'OUTPUT_PATH', 'WORKING_PATH', 'ERROR_PATH',
-        'WAITING_PATH', 'CAPTURING_PATH', 'BATCHEN_PATH', 'FINISHED_PATH',
-        'RAW_PATH', 'PRODUCTION_PATH', 'REMOTE_FINISHED_PATH', 'DVD_LOG_PATH',
-        'BURNER_NAME', 'BURNER_PATH', 'DVD_SPACE_FOR_USE', 'DVD_MAX_IMAGES'
+        "NAS_IP", "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
+        "WAITING_PATH", "CAPTURING_PATH", "BATCHEN_PATH", "FINISHED_PATH",
+        "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH",
+        "BURNER_NAME", "BURNER_PATH", "DVD_SPACE_FOR_USE", "DVD_MAX_IMAGES"
     );
 
     $setParts = array();
@@ -74,7 +74,7 @@ function updateHotfolderSettings() {
 
 function updateGeneralSettings() {
     $fields = array(
-        'NAS_IP', 'FILMOMAT_IP'
+        "NAS_IP", "FILMOMAT_IP"
     );
 
     $setParts = array();
@@ -107,18 +107,18 @@ function getWorkflows() {
 }
 
 function addWorkflow() {
-    $name = mysql_real_escape_string($_POST['name']);
-    $partnerID = intval($_POST['partnerID']);
-    $arbeitsschrittID = intval($_POST['arbeitsschrittID']);
-    $bekommtStaffel = isset($_POST['bekommtStaffel']) ? 1 : 0;
-    $bekommtUnterordner = isset($_POST['bekommtUnterordner']) ? 1 : 0;
-    $batchID = mysql_real_escape_string($_POST['batchID']);
-    $zielpfad = mysql_real_escape_string($_POST['zielpfad']);
-    $abteilung = mysql_real_escape_string($_POST['abteilung']);
-    $bekommtPhotoshop = isset($_POST['bekommtPhotoshop']) ? 1 : 0;
-    $bekommtViesus = isset($_POST['bekommtViesus']) ? 1 : 0;
-    $bekommtMoebius = isset($_POST['bekommtMoebius']) ? 1 : 0;
-    $zielSpeichermedium = mysql_real_escape_string($_POST['zielSpeichermedium']);
+    $name = mysql_real_escape_string($_POST["name"]);
+    $partnerID = intval($_POST["partnerID"]);
+    $arbeitsschrittID = intval($_POST["arbeitsschrittID"]);
+    $bekommtStaffel = isset($_POST["bekommtStaffel"]) ? 1 : 0;
+    $bekommtUnterordner = isset($_POST["bekommtUnterordner"]) ? 1 : 0;
+    $batchID = mysql_real_escape_string($_POST["batchID"]);
+    $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
+    $abteilung = mysql_real_escape_string($_POST["abteilung"]);
+    $bekommtPhotoshop = isset($_POST["bekommtPhotoshop"]) ? 1 : 0;
+    $bekommtViesus = isset($_POST["bekommtViesus"]) ? 1 : 0;
+    $bekommtMoebius = isset($_POST["bekommtMoebius"]) ? 1 : 0;
+    $zielSpeichermedium = mysql_real_escape_string($_POST["zielSpeichermedium"]);
 
     $query = "INSERT INTO produktionsworkflows (name, partnerID, arbeitsschrittID, bekommtStaffel, bekommtUnterordner, batchID, zielpfad, abteilung, bekommtPhotoshop, bekommtViesus, bekommtMoebius, zielSpeichermedium) 
               VALUES ('$name', $partnerID, $arbeitsschrittID, $bekommtStaffel, $bekommtUnterordner, '$batchID', '$zielpfad', '$abteilung', $bekommtPhotoshop, $bekommtViesus, $bekommtMoebius, '$zielSpeichermedium')";
@@ -127,13 +127,13 @@ function addWorkflow() {
         $workflowID = mysql_insert_id();
 
         // Artikel hinzufügen falls vorhanden
-        if (isset($_POST['articles']) && is_array($_POST['articles'])) {
-            foreach ($_POST['articles'] as $article) {
-                $artNr = mysql_real_escape_string($article['artNr']);
-                $spezialPosition = intval($article['spezialPosition']);
-                $zusatzPosition = intval($article['zusatzPosition']);
-                $staffelStart = intval($article['staffelStart']);
-                $staffelEnde = intval($article['staffelEnde']);
+        if (isset($_POST["articles"]) && is_array($_POST["articles"])) {
+            foreach ($_POST["articles"] as $article) {
+                $artNr = mysql_real_escape_string($article["artNr"]);
+                $spezialPosition = intval($article["spezialPosition"]);
+                $zusatzPosition = intval($article["zusatzPosition"]);
+                $staffelStart = intval($article["staffelStart"]);
+                $staffelEnde = intval($article["staffelEnde"]);
 
                 $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde) 
                                 VALUES ($workflowID, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde)";
@@ -148,19 +148,19 @@ function addWorkflow() {
 }
 
 function updateWorkflow() {
-    $id = intval($_POST['id']);
-    $name = mysql_real_escape_string($_POST['name']);
-    $partnerID = intval($_POST['partnerID']);
-    $arbeitsschrittID = intval($_POST['arbeitsschrittID']);
-    $bekommtStaffel = isset($_POST['bekommtStaffel']) ? 1 : 0;
-    $bekommtUnterordner = isset($_POST['bekommtUnterordner']) ? 1 : 0;
-    $batchID = mysql_real_escape_string($_POST['batchID']);
-    $zielpfad = mysql_real_escape_string($_POST['zielpfad']);
-    $abteilung = mysql_real_escape_string($_POST['abteilung']);
-    $bekommtPhotoshop = isset($_POST['bekommtPhotoshop']) ? 1 : 0;
-    $bekommtViesus = isset($_POST['bekommtViesus']) ? 1 : 0;
-    $bekommtMoebius = isset($_POST['bekommtMoebius']) ? 1 : 0;
-    $zielSpeichermedium = mysql_real_escape_string($_POST['zielSpeichermedium']);
+    $id = intval($_POST["id"]);
+    $name = mysql_real_escape_string($_POST["name"]);
+    $partnerID = intval($_POST["partnerID"]);
+    $arbeitsschrittID = intval($_POST["arbeitsschrittID"]);
+    $bekommtStaffel = isset($_POST["bekommtStaffel"]) ? 1 : 0;
+    $bekommtUnterordner = isset($_POST["bekommtUnterordner"]) ? 1 : 0;
+    $batchID = mysql_real_escape_string($_POST["batchID"]);
+    $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
+    $abteilung = mysql_real_escape_string($_POST["abteilung"]);
+    $bekommtPhotoshop = isset($_POST["bekommtPhotoshop"]) ? 1 : 0;
+    $bekommtViesus = isset($_POST["bekommtViesus"]) ? 1 : 0;
+    $bekommtMoebius = isset($_POST["bekommtMoebius"]) ? 1 : 0;
+    $zielSpeichermedium = mysql_real_escape_string($_POST["zielSpeichermedium"]);
 
     $query = "UPDATE produktionsworkflows SET 
               name = '$name', 
@@ -183,13 +183,13 @@ function updateWorkflow() {
         mysql_query($deleteQuery);
 
         // Neue Artikel hinzufügen
-        if (isset($_POST['articles']) && is_array($_POST['articles'])) {
-            foreach ($_POST['articles'] as $article) {
-                $artNr = mysql_real_escape_string($article['artNr']);
-                $spezialPosition = intval($article['spezialPosition']);
-                $zusatzPosition = intval($article['zusatzPosition']);
-                $staffelStart = intval($article['staffelStart']);
-                $staffelEnde = intval($article['staffelEnde']);
+        if (isset($_POST["articles"]) && is_array($_POST["articles"])) {
+            foreach ($_POST["articles"] as $article) {
+                $artNr = mysql_real_escape_string($article["artNr"]);
+                $spezialPosition = intval($article["spezialPosition"]);
+                $zusatzPosition = intval($article["zusatzPosition"]);
+                $staffelStart = intval($article["staffelStart"]);
+                $staffelEnde = intval($article["staffelEnde"]);
 
                 $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde) 
                                 VALUES ($id, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde)";
@@ -204,7 +204,7 @@ function updateWorkflow() {
 }
 
 function deleteWorkflow() {
-    $id = intval($_POST['id']);
+    $id = intval($_POST["id"]);
 
     $query = "DELETE FROM produktionsworkflowsartikelpositionen WHERE workflowID = $id";
     mysql_query($query);
@@ -460,7 +460,7 @@ $articles = getArticles();
         <?php
         $groupedWorkflows = [];
         foreach ($workflows as $workflow) {
-            $abteilung = ucfirst(htmlspecialchars($workflow['abteilung']));
+            $abteilung = ucfirst(htmlspecialchars($workflow["abteilung"]));
             $groupedWorkflows[$abteilung][] = $workflow;
         }
 
@@ -493,15 +493,15 @@ $articles = getArticles();
                     </tr>
                     <?php foreach ($abteilungWorkflows as $workflow): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($workflow['name']); ?></td>
-                            <td><?php if ($workflow['partnerID'] == 0) {echo "Kein fester Partner";} else {echo htmlspecialchars($workflow['partnerID']);}?></td>
-                            <td><?php echo htmlspecialchars($workflow['arbeitsschrittID']); ?></td>
-                            <td><?php if(htmlspecialchars($workflow['bekommtStaffel'])) {echo "Ja";} else {echo "Nein";}?></td>
-                            <td><?php if(htmlspecialchars($workflow['bekommtUnterordner'])) {echo "Ja";} else {echo "Nein";}?></td>
-                            <td><?php echo htmlspecialchars($workflow['batchID']); ?></td>
-                            <td><?php echo ucfirst(htmlspecialchars($workflow['zielSpeichermedium'])); ?></td>
+                            <td><?php echo htmlspecialchars($workflow["name"]); ?></td>
+                            <td><?php if ($workflow["partnerID"] == 0) {echo "Kein fester Partner";} else {echo htmlspecialchars($workflow["partnerID"]);}?></td>
+                            <td><?php echo htmlspecialchars($workflow["arbeitsschrittID"]); ?></td>
+                            <td><?php if(htmlspecialchars($workflow["bekommtStaffel"])) {echo "Ja";} else {echo "Nein";}?></td>
+                            <td><?php if(htmlspecialchars($workflow["bekommtUnterordner"])) {echo "Ja";} else {echo "Nein";}?></td>
+                            <td><?php echo htmlspecialchars($workflow["batchID"]); ?></td>
+                            <td><?php echo ucfirst(htmlspecialchars($workflow["zielSpeichermedium"])); ?></td>
                             <td>
-                                <button type="button" class="btn" onclick="editWorkflow(<?php echo $workflow['id']; ?>)">Bearbeiten</button>
+                                <button type="button" class="btn" onclick="editWorkflow(<?php echo $workflow["id"]; ?>)">Bearbeiten</button>
                                 <form method="post" style="display: inline;" onsubmit="return confirm('Workflow wirklich löschen?');">
                                     <input type="hidden" name="action" value="delete_workflow">
                                     <input type="hidden" name="id" value="<?php echo $workflow['id']; ?>">
@@ -634,7 +634,7 @@ $articles = getArticles();
                                 <select id="modal_artNr" required style="width: 100%;">
                                     <option value="">Artikel wählen...</option>
                                     <?php foreach ($articles as $article): ?>
-                                        <option value="<?php echo htmlspecialchars($article['artNr']); ?>"><?php echo htmlspecialchars($article['artNr']); ?></option>
+                                        <option value="<?php echo htmlspecialchars($article["artNr"]); ?>"><?php echo htmlspecialchars($article["artNr"]); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -691,21 +691,21 @@ $articles = getArticles();
         currentWorkflowId = null;
         localArticles = [];
 
-        document.getElementById('modalTitle').textContent = 'Neuen Workflow erstellen';
-        document.getElementById('formAction').value = 'add_workflow';
-        document.getElementById('workflowId').value = '';
-        document.getElementById('articles-tab-button').style.display = 'none';
+        document.getElementById("modalTitle").textContent = "Neuen Workflow erstellen";
+        document.getElementById("formAction").value = "add_workflow";
+        document.getElementById("workflowId").value = "";
+        document.getElementById("articles-tab-button").style.display = "none";
 
         // Reset form
-        document.getElementById('workflowForm').reset();
+        document.getElementById("workflowForm").reset();
 
         // Show workflow tab
-        showTab('workflow-tab');
+        showTab("workflow-tab");
 
         // Reset article form
         resetArticleForm();
 
-        document.getElementById('workflowModal').style.display = 'block';
+        document.getElementById("workflowModal").style.display = "block";
     }
 
     function editWorkflow(workflowId) {
@@ -713,33 +713,33 @@ $articles = getArticles();
         currentWorkflowId = workflowId;
         localArticles = [];
 
-        document.getElementById('modalTitle').textContent = 'Workflow bearbeiten';
-        document.getElementById('formAction').value = 'update_workflow';
-        document.getElementById('workflowId').value = workflowId;
-        document.getElementById('articles-tab-button').style.display = 'inline-block';
+        document.getElementById("modalTitle").textContent = "Workflow bearbeiten";
+        document.getElementById("formAction").value = "update_workflow";
+        document.getElementById("workflowId").value = workflowId;
+        document.getElementById("articles-tab-button").style.display = "inline-block";
 
         // Load workflow data via AJAX
-        fetch('/ajax/produktworkflows.php?action=get_workflow&id=' + workflowId)
+        fetch("/ajax/produktworkflows.php?action=get_workflow&id=" + workflowId)
             .then(response => response.json())
             .then(data => {
                 const workflow = data.workflow;
                 const articles = data.articles;
 
                 // Populate form fields
-                document.getElementById('modal_name').value = workflow.name || '';
-                document.getElementById('modal_partnerID').value = workflow.partnerID || '';
-                document.getElementById('modal_arbeitsschrittID').value = workflow.arbeitsschrittID || '';
-                document.getElementById('modal_batchID').value = workflow.batchID || '';
-                document.getElementById('modal_zielpfad').value = workflow.zielpfad || '';
-                document.getElementById('modal_abteilung').value = workflow.abteilung || '';
-                document.getElementById('modal_zielSpeichermedium').value = workflow.zielSpeichermedium || '';
+                document.getElementById("modal_name").value = workflow.name || "";
+                document.getElementById("modal_partnerID").value = workflow.partnerID || "";
+                document.getElementById("modal_arbeitsschrittID").value = workflow.arbeitsschrittID || "";
+                document.getElementById("modal_batchID").value = workflow.batchID || "";
+                document.getElementById("modal_zielpfad").value = workflow.zielpfad || "";
+                document.getElementById("modal_abteilung").value = workflow.abteilung || "";
+                document.getElementById("modal_zielSpeichermedium").value = workflow.zielSpeichermedium || "";
 
                 // Set checkboxes
-                document.getElementById('modal_bekommtStaffel').checked = workflow.bekommtStaffel == 1;
-                document.getElementById('modal_bekommtUnterordner').checked = workflow.bekommtUnterordner == 1;
-                document.getElementById('modal_bekommtPhotoshop').checked = workflow.bekommtPhotoshop == 1;
-                document.getElementById('modal_bekommtViesus').checked = workflow.bekommtViesus == 1;
-                document.getElementById('modal_bekommtMoebius').checked = workflow.bekommtMoebius == 1;
+                document.getElementById("modal_bekommtStaffel").checked = workflow.bekommtStaffel == 1;
+                document.getElementById("modal_bekommtUnterordner").checked = workflow.bekommtUnterordner == 1;
+                document.getElementById("modal_bekommtPhotoshop").checked = workflow.bekommtPhotoshop == 1;
+                document.getElementById("modal_bekommtViesus").checked = workflow.bekommtViesus == 1;
+                document.getElementById("modal_bekommtMoebius").checked = workflow.bekommtMoebius == 1;
 
                 // Load articles into local array
                 localArticles = articles.map(article => ({
@@ -759,15 +759,15 @@ $articles = getArticles();
                 resetArticleForm();
             })
             .catch(error => {
-                console.error('Error loading workflow data:', error);
-                alert('Fehler beim Laden der Workflow-Daten');
+                console.error("Error loading workflow data:", error);
+                alert("Fehler beim Laden der Workflow-Daten");
             });
 
-        document.getElementById('workflowModal').style.display = 'block';
+        document.getElementById("workflowModal").style.display = "block";
     }
 
     function closeWorkflowModal() {
-        document.getElementById('workflowModal').style.display = 'none';
+        document.getElementById("workflowModal").style.display = "none";
         currentWorkflowId = null;
         isEditMode = false;
         localArticles = [];
@@ -775,39 +775,39 @@ $articles = getArticles();
 
     function showTab(tabId) {
         // Hide all tab contents
-        const tabContents = document.querySelectorAll('.tab-content');
-        tabContents.forEach(content => content.classList.remove('active'));
+        const tabContents = document.querySelectorAll(".tab-content");
+        tabContents.forEach(content => content.classList.remove("active"));
 
         // Remove active class from all tab buttons
-        const tabButtons = document.querySelectorAll('.tab-button');
-        tabButtons.forEach(button => button.classList.remove('active'));
+        const tabButtons = document.querySelectorAll(".tab-button");
+        tabButtons.forEach(button => button.classList.remove("active"));
 
         // Show selected tab content
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(tabId).classList.add("active");
 
         // Add active class to corresponding button
         const activeButton = document.querySelector(`[onclick="showTab('${tabId}')"]`);
         if (activeButton) {
-            activeButton.classList.add('active');
+            activeButton.classList.add("active");
         }
 
         updateStaffelFields();
     }
 
     function addArticleToList() {
-        const artNr = document.getElementById('modal_artNr').value;
-        const positionType = document.querySelector('input[name="positionType"]:checked').value;
-        const staffelStart = parseInt(document.getElementById('modal_staffelStart').value) || 0;
-        const staffelEnde = parseInt(document.getElementById('modal_staffelEnde').value) || 0;
+        const artNr = document.getElementById("modal_artNr").value;
+        const positionType = document.querySelector("input[name='positionType']:checked").value;
+        const staffelStart = parseInt(document.getElementById("modal_staffelStart").value) || 0;
+        const staffelEnde = parseInt(document.getElementById("modal_staffelEnde").value) || 0;
 
         if (!artNr) {
-            alert('Bitte wählen Sie einen Artikel aus.');
+            alert("Bitte wählen Sie einen Artikel aus.");
             return;
         }
 
         // Prüfen ob Artikel bereits existiert
         if (localArticles.some(article => article.artNr === artNr)) {
-            alert('Dieser Artikel ist bereits zugewiesen.');
+            alert("Dieser Artikel ist bereits zugewiesen.");
             return;
         }
 
@@ -815,8 +815,8 @@ $articles = getArticles();
         const newArticle = {
             id: null, // Neue Artikel haben noch keine ID
             artNr: artNr,
-            spezialPosition: positionType === 'spezial' ? 1 : 0,
-            zusatzPosition: positionType === 'zusatz' ? 1 : 0,
+            spezialPosition: positionType === "spezial" ? 1 : 0,
+            zusatzPosition: positionType === "zusatz" ? 1 : 0,
             staffelStart: staffelStart,
             staffelEnde: staffelEnde,
             isNew: true
@@ -832,7 +832,7 @@ $articles = getArticles();
     }
 
     function removeArticleFromList(index) {
-        if (confirm('Artikel wirklich aus der Liste entfernen?')) {
+        if (confirm("Artikel wirklich aus der Liste entfernen?")) {
             localArticles.splice(index, 1);
             updateArticlesDisplay();
         }
@@ -844,15 +844,15 @@ $articles = getArticles();
     }
 
     function updateNormalArticlesDisplay() {
-        const container = document.getElementById('assignedArticles');
+        const container = document.getElementById("assignedArticles");
         const normalArticles = localArticles.filter(article => article.zusatzPosition !== 1);
 
         if (normalArticles.length === 0) {
-            container.innerHTML = '<p>Keine normalen Artikel zugewiesen.</p>';
+            container.innerHTML = "<p>Keine normalen Artikel zugewiesen.</p>";
             return;
         }
 
-        let html = '<table><tr><th>Artikel Nr.</th><th>Spezial Position</th><th>Staffel Start</th><th>Staffel Ende</th><th>Status</th><th>Aktionen</th></tr>';
+        let html = "<table><tr><th>Artikel Nr.</th><th>Spezial Position</th><th>Staffel Start</th><th>Staffel Ende</th><th>Status</th><th>Aktionen</th></tr>";
 
         const shouldSort = normalArticles.some(item => item.staffelStart !== 0 && item.staffelEnde !== 0);
         if (shouldSort) {
@@ -863,10 +863,10 @@ $articles = getArticles();
 
         normalArticles.forEach((article) => {
             const index = localArticles.indexOf(article);
-            const statusText = article.isNew ? '<span style="color: green;">Neu</span>' : '<span style="color: blue;">Vorhanden</span>';
+            const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
             html += `<tr>
             <td>${escapeHtml(article.artNr)}</td>
-            <td>${article.spezialPosition == 1 ? 'Ja' : 'Nein'}</td>
+            <td>${article.spezialPosition == 1 ? "Ja" : "Nein"}</td>
             <td>${article.staffelStart}</td>
             <td>${article.staffelEnde}</td>
             <td>${statusText}</td>
@@ -876,26 +876,26 @@ $articles = getArticles();
         </tr>`;
         });
 
-        html += '</table>';
+        html += "</table>";
         container.innerHTML = html;
     }
 
     function updateZusatzPositionsDisplay() {
-        const container = document.getElementById('zusatzPositions');
+        const container = document.getElementById("zusatzPositions");
         const zusatzArticles = localArticles.filter(article => article.zusatzPosition === 1);
 
         if (zusatzArticles.length === 0) {
-            container.innerHTML = '<p>Keine Zusatzpositionen zugewiesen.</p>';
+            container.innerHTML = "<p>Keine Zusatzpositionen zugewiesen.</p>";
             return;
         }
 
-        let html = '<table><tr><th>Artikel Nr.</th><th>Status</th><th>Aktionen</th></tr>';
+        let html = "<table><tr><th>Artikel Nr.</th><th>Status</th><th>Aktionen</th></tr>";
 
         zusatzArticles.sort((a, b) => a.artNr.localeCompare(b.artNr));
 
         zusatzArticles.forEach((article) => {
             const index = localArticles.indexOf(article);
-            const statusText = article.isNew ? '<span style="color: green;">Neu</span>' : '<span style="color: blue;">Vorhanden</span>';
+            const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
             html += `<tr>
             <td>${escapeHtml(article.artNr)}</td>
             <td>${statusText}</td>
@@ -905,65 +905,65 @@ $articles = getArticles();
         </tr>`;
         });
 
-        html += '</table>';
+        html += "</table>";
         container.innerHTML = html;
     }
 
     function resetArticleForm() {
-        document.getElementById('modal_artNr').value = '';
-        document.getElementById('modal_staffelStart').value = '0';
-        document.getElementById('modal_staffelEnde').value = '0';
-        document.getElementById('modal_normalPosition').checked = true;
+        document.getElementById("modal_artNr").value = "";
+        document.getElementById("modal_staffelStart").value = "0";
+        document.getElementById("modal_staffelEnde").value = "0";
+        document.getElementById("modal_normalPosition").checked = true;
 
         updateStaffelFields();
     }
 
     function submitWorkflowForm() {
-        const requiredFields = ['modal_name', 'modal_partnerID', 'modal_arbeitsschrittID', 'modal_batchID', 'modal_zielpfad', 'modal_abteilung', 'modal_zielSpeichermedium'];
+        const requiredFields = ["modal_name", "modal_partnerID", "modal_arbeitsschrittID", "modal_batchID", "modal_zielpfad", "modal_abteilung", "modal_zielSpeichermedium"];
         let isValid = true;
 
         requiredFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (!field.value.trim()) {
-                field.style.borderColor = 'red';
+                field.style.borderColor = "red";
                 isValid = false;
             } else {
-                field.style.borderColor = '';
+                field.style.borderColor = "";
             }
         });
 
         if (!isValid) {
-            alert('Bitte füllen Sie alle Pflichtfelder aus.');
+            alert("Bitte füllen Sie alle Pflichtfelder aus.");
             return;
         }
 
         const batchIDField = document.getElementById("modal_batchID");
         if (batchIDField.value.length !== 2) {
-            batchIDField.style.borderColor = 'red';
+            batchIDField.style.borderColor = "red";
             isValid = false;
         } else {
-            batchIDField.style.borderColor = '';
+            batchIDField.style.borderColor = "";
         }
 
         if (!isValid) {
-            alert('Die Batch-ID muss aus genau zwei Zeichen bestehen');
+            alert("Die Batch-ID muss aus genau zwei Zeichen bestehen");
             return;
         }
 
 
         // Erstelle versteckte Inputs für die Artikel
-        const form = document.getElementById('workflowForm');
+        const form = document.getElementById("workflowForm");
 
         // Entferne eventuell vorhandene Artikel-Inputs
-        const existingArticleInputs = form.querySelectorAll('input[name^="articles"]');
+        const existingArticleInputs = form.querySelectorAll("input[name^='articles']");
         existingArticleInputs.forEach(input => input.remove());
 
         // Füge neue Artikel-Inputs hinzu
         localArticles.forEach((article, index) => {
-            const fields = ['artNr', 'spezialPosition', 'zusatzPosition', 'staffelStart', 'staffelEnde'];
+            const fields = ["artNr", "spezialPosition", "zusatzPosition", "staffelStart", "staffelEnde"];
             fields.forEach(field => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
+                const input = document.createElement("input");
+                input.type = "hidden";
                 input.name = `articles[${index}][${field}]`;
                 input.value = article[field];
                 form.appendChild(input);
@@ -975,34 +975,34 @@ $articles = getArticles();
 
     function escapeHtml(text) {
         const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
         };
         return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
     // Close modal when clicking outside of it
     window.onclick = function(event) {
-        const modal = document.getElementById('workflowModal');
+        const modal = document.getElementById("workflowModal");
         if (event.target === modal) {
             closeWorkflowModal();
         }
     }
 
     // Handle escape key to close modal
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
+    document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
             closeWorkflowModal();
         }
     });
 
     function updateStaffelFields() {
-        const bekommtStaffelCheckbox = document.getElementById('modal_bekommtStaffel');
-        const staffelStartField = document.getElementById('modal_staffelStart');
-        const staffelEndeField = document.getElementById('modal_staffelEnde');
+        const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
+        const staffelStartField = document.getElementById("modal_staffelStart");
+        const staffelEndeField = document.getElementById("modal_staffelEnde");
 
         if (bekommtStaffelCheckbox && bekommtStaffelCheckbox.checked) {
             staffelStartField.disabled = false;
@@ -1010,32 +1010,32 @@ $articles = getArticles();
         } else {
             staffelStartField.disabled = true;
             staffelEndeField.disabled = true;
-            staffelStartField.value = '0';
-            staffelEndeField.value = '0';
+            staffelStartField.value = "0";
+            staffelEndeField.value = "0";
         }
     }
 
     // Event Listeners für Radio Buttons hinzufügen
-    document.addEventListener('DOMContentLoaded', function() {
-        const bekommtStaffelCheckbox = document.getElementById('modal_bekommtStaffel');
-        const positionRadios = document.querySelectorAll('input[name="positionType"]');
+    document.addEventListener("DOMContentLoaded", function() {
+        const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
+        const positionRadios = document.querySelectorAll("input[name='positionType']");
 
         if (bekommtStaffelCheckbox) {
-            bekommtStaffelCheckbox.addEventListener('change', updateStaffelFields);
+            bekommtStaffelCheckbox.addEventListener("change", updateStaffelFields);
         }
 
         // Event Listener für Position Radio Buttons
         positionRadios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                const staffelStartField = document.getElementById('modal_staffelStart');
-                const staffelEndeField = document.getElementById('modal_staffelEnde');
+            radio.addEventListener("change", function() {
+                const staffelStartField = document.getElementById("modal_staffelStart");
+                const staffelEndeField = document.getElementById("modal_staffelEnde");
 
                 // Bei Zusatzposition keine Staffel-Felder aktivieren
-                if (this.value === 'zusatz') {
+                if (this.value === "zusatz") {
                     staffelStartField.disabled = true;
                     staffelEndeField.disabled = true;
-                    staffelStartField.value = '0';
-                    staffelEndeField.value = '0';
+                    staffelStartField.value = "0";
+                    staffelEndeField.value = "0";
                 } else {
                     // Bei anderen Positionen normale Logik anwenden
                     updateStaffelFields();
