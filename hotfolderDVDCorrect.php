@@ -2,6 +2,21 @@
 
 include "settings/config.php";
 
+function set_production_done($ordernumber) {
+    try {
+        $time = time();
+        $sql = "UPDATE ds SET produktionAbgeschlossen = from_unixtime($time) WHERE barcode = $ordernumber;";
+        $result = mysql_query($sql);
+        if(!$result) {
+            throw new Exception("Fehler beim Eintragen des Produktionsabschlusses");
+        }
+
+        return true;
+    } catch(Exception $e) {
+        return false;
+    }
+}
+
 $partner_ids_to_skip = array();
 
 $sql = "SELECT ID from partner WHERE bekommtDVDArtikel = 0;";
@@ -132,6 +147,22 @@ try {
                 $result = mysql_query($sql);
                 if(!$result) {
                     throw new Exception("Konnte die Auftragspostion für die DVDs nicht anpassen");
+                }
+
+                $result = gibSollIstAbgleichDerProduktionEinesAuftrages($ordernumber, true);
+                if($result) {
+                    $erg = set_production_done($ordernumber);
+                    if(!$erg) {
+                        throw new Exception("Konnte die Produktion nicht abschließen");
+                    }
+
+                    $client_ip = $_SERVER["REMOTE_ADDR"];
+
+                    $sql = "INSERT INTO log (UserID, barcode, time, text, manuell, IP, typ) VALUES ('$userid', '$ordernumber', unix_timestamp(), 'Die Produktion wurde vom automatischen DVD-Hotfolder abgeschlossen.', 0, '$client_ip', 0);";
+                    $result = mysql_query($sql);
+                    if(!$result) {
+                        throw new Exception("Fehler beim Erstellen des History-Eintrags");
+                    }
                 }
 
                 echo "Corrected $ordernumber with $dvd_amount DVDs";
