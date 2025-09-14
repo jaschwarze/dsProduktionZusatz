@@ -10,7 +10,7 @@ if(!isset($included)) {
 checkLogin();
 checkRight(21);
 
-echo "<a href='?section=settingsOverview'>zurÃ¼ck</a><br/><br/>\n";
+echo "<a href='?section=settingsOverview'>zurück</a><br/><br/>\n";
 
 $action = isset($_POST["action"]) ? $_POST["action"] : (isset($_GET["action"]) ? $_GET["action"] : "");
 $message = "";
@@ -64,12 +64,12 @@ function updateHotfolderSettings() {
     if (!empty($setParts)) {
         $query = "UPDATE autohotfoldereinstellungen SET " . implode(', ', $setParts) . " LIMIT 1";
         if (mysql_query($query)) {
-            return "Einstellungen fÃ¼r automatischen Hotfolder erfolgreich aktualisiert.";
+            return "Einstellungen für automatischen Hotfolder erfolgreich aktualisiert.";
         } else {
             return "Fehler beim Aktualisieren: " . mysql_error();
         }
     }
-    return "Keine Ã„nderungen vorgenommen.";
+    return "Keine Änderungen vorgenommen.";
 }
 
 function updateGeneralSettings() {
@@ -93,7 +93,7 @@ function updateGeneralSettings() {
             return "Fehler beim Aktualisieren: " . mysql_error();
         }
     }
-    return "Keine Ã„nderungen vorgenommen.";
+    return "Keine Änderungen vorgenommen.";
 }
 
 function getWorkflows() {
@@ -126,7 +126,7 @@ function addWorkflow() {
     if (mysql_query($query)) {
         $workflowID = mysql_insert_id();
 
-        // Artikel hinzufÃ¼gen falls vorhanden
+        // Artikel hinzufügen falls vorhanden
         if (isset($_POST["articles"]) && is_array($_POST["articles"])) {
             foreach ($_POST["articles"] as $article) {
                 $artNr = mysql_real_escape_string($article["artNr"]);
@@ -178,11 +178,11 @@ function updateWorkflow() {
               WHERE id = $id";
 
     if (mysql_query($query)) {
-        // Alle bisherigen Artikel lÃ¶schen
+        // Alle bisherigen Artikel löschen
         $deleteQuery = "DELETE FROM produktionsworkflowsartikelpositionen WHERE workflowID = $id";
         mysql_query($deleteQuery);
 
-        // Neue Artikel hinzufÃ¼gen
+        // Neue Artikel hinzufügen
         if (isset($_POST["articles"]) && is_array($_POST["articles"])) {
             foreach ($_POST["articles"] as $article) {
                 $artNr = mysql_real_escape_string($article["artNr"]);
@@ -211,9 +211,9 @@ function deleteWorkflow() {
 
     $query = "DELETE FROM produktionsworkflows WHERE id = $id";
     if (mysql_query($query)) {
-        return "Workflow erfolgreich gelÃ¶scht.";
+        return "Workflow erfolgreich gelöscht.";
     } else {
-        return "Fehler beim LÃ¶schen: " . mysql_error();
+        return "Fehler beim Löschen: " . mysql_error();
     }
 }
 
@@ -325,7 +325,7 @@ $articles = getArticles();
 </head>
 <body>
 
-<h1>Automatische ProduktionsablÃ¤ufe - Einstellungen</h1>
+<h1>Automatische Produktionsabläufe - Einstellungen</h1>
 
 <?php if ($message): ?>
     <div class="message <?php echo strpos($message, 'Fehler') !== false ? 'error' : 'success'; ?>">
@@ -502,10 +502,10 @@ $articles = getArticles();
                             <td><?php echo ucfirst(htmlspecialchars($workflow["zielSpeichermedium"])); ?></td>
                             <td>
                                 <button type="button" class="btn" onclick="editWorkflow(<?php echo $workflow["id"]; ?>)">Bearbeiten</button>
-                                <form method="post" style="display: inline;" onsubmit="return confirm('Workflow wirklich lÃ¶schen?');">
+                                <form method="post" style="display: inline;" onsubmit="return confirm('Workflow wirklich löschen?');">
                                     <input type="hidden" name="action" value="delete_workflow">
                                     <input type="hidden" name="id" value="<?php echo $workflow['id']; ?>">
-                                    <button type="submit" class="btn btn-danger">LÃ¶schen</button>
+                                    <button type="submit" class="btn btn-danger">Löschen</button>
                                 </form>
                             </td>
                         </tr>
@@ -544,7 +544,7 @@ $articles = getArticles();
 
                         <div class="form-group">
                             <label for="modal_partnerID">Partner-ID:</label>
-                            <input type="number" id="modal_partnerID" name="partnerID" min="0" required style="width: 100%;" placeholder="ZugehÃ¶rige Partner-ID (0, falls mehrere Partner den Workflow nutzen)">
+                            <input type="number" id="modal_partnerID" name="partnerID" min="0" required style="width: 100%;" placeholder="Zugehörige Partner-ID (0, falls mehrere Partner den Workflow nutzen)">
                         </div>
 
                         <div class="form-group">
@@ -565,7 +565,7 @@ $articles = getArticles();
                         <div class="form-group">
                             <label for="modal_abteilung">Abteilung:</label>
                             <select id="modal_abteilung" name="abteilung" required style="width: 100%;">
-                                <option value="">Bitte wÃ¤hlen...</option>
+                                <option value="">Bitte wählen...</option>
                                 <option value="dia">Dia</option>
                                 <option value="foto">Foto</option>
                                 <option value="negativ">Negativ</option>
@@ -575,7 +575,7 @@ $articles = getArticles();
                         <div class="form-group">
                             <label for="modal_zielSpeichermedium">Ziel-Speichermedium:</label>
                             <select id="modal_zielSpeichermedium" name="zielSpeichermedium" required style="width: 100%;">
-                                <option value="">Bitte wÃ¤hlen...</option>
+                                <option value="">Bitte wählen...</option>
                                 <option value="dvd">DVD</option>
                                 <option value="usb">USB</option>
                                 <option value="cloud">Cloud</option>
@@ -627,12 +627,12 @@ $articles = getArticles();
                             </div>
                         </div>
 
-                        <h4>Artikel hinzufÃ¼gen</h4>
+                        <h4>Artikel hinzufügen</h4>
                         <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; background: #f9f9f9;">
                             <div class="form-group">
                                 <label for="modal_artNr">Artikel:</label>
                                 <select id="modal_artNr" required style="width: 100%;">
-                                    <option value="">Artikel wÃ¤hlen...</option>
+                                    <option value="">Artikel wählen...</option>
                                     <?php foreach ($articles as $article): ?>
                                         <option value="<?php echo htmlspecialchars($article["artNr"]); ?>"><?php echo htmlspecialchars($article["artNr"]); ?></option>
                                     <?php endforeach; ?>
@@ -668,7 +668,7 @@ $articles = getArticles();
                                 <input type="number" id="modal_staffelEnde" value="0" style="width: 100%;" disabled>
                             </div>
 
-                            <button type="button" class="btn" onclick="addArticleToList()">Artikel hinzufÃ¼gen</button>
+                            <button type="button" class="btn" onclick="addArticleToList()">Artikel hinzufügen</button>
                         </div>
                     </div>
                 </div>
@@ -684,7 +684,7 @@ $articles = getArticles();
 <script>
     let currentWorkflowId = null;
     let isEditMode = false;
-    let localArticles = []; // Lokale Artikel-Liste fÃ¼r das Modal
+    let localArticles = []; // Lokale Artikel-Liste für das Modal
 
     function openWorkflowModal() {
         isEditMode = false;
@@ -801,17 +801,17 @@ $articles = getArticles();
         const staffelEnde = parseInt(document.getElementById("modal_staffelEnde").value) || 0;
 
         if (!artNr) {
-            alert("Bitte wÃ¤hlen Sie einen Artikel aus.");
+            alert("Bitte wählen Sie einen Artikel aus.");
             return;
         }
 
-        // PrÃ¼fen ob Artikel bereits existiert
+        // Prüfen ob Artikel bereits existiert
         if (localArticles.some(article => article.artNr === artNr)) {
             alert("Dieser Artikel ist bereits zugewiesen.");
             return;
         }
 
-        // Artikel zur lokalen Liste hinzufÃ¼gen
+        // Artikel zur lokalen Liste hinzufügen
         const newArticle = {
             id: null, // Neue Artikel haben noch keine ID
             artNr: artNr,
@@ -827,7 +827,7 @@ $articles = getArticles();
         // Anzeige aktualisieren
         updateArticlesDisplay();
 
-        // Formular zurÃ¼cksetzen
+        // Formular zurücksetzen
         resetArticleForm();
     }
 
@@ -933,7 +933,7 @@ $articles = getArticles();
         });
 
         if (!isValid) {
-            alert("Bitte fÃ¼llen Sie alle Pflichtfelder aus.");
+            alert("Bitte füllen Sie alle Pflichtfelder aus.");
             return;
         }
 
@@ -951,14 +951,14 @@ $articles = getArticles();
         }
 
 
-        // Erstelle versteckte Inputs fÃ¼r die Artikel
+        // Erstelle versteckte Inputs für die Artikel
         const form = document.getElementById("workflowForm");
 
         // Entferne eventuell vorhandene Artikel-Inputs
         const existingArticleInputs = form.querySelectorAll("input[name^='articles']");
         existingArticleInputs.forEach(input => input.remove());
 
-        // FÃ¼ge neue Artikel-Inputs hinzu
+        // Füge neue Artikel-Inputs hinzu
         localArticles.forEach((article, index) => {
             const fields = ["artNr", "spezialPosition", "zusatzPosition", "staffelStart", "staffelEnde"];
             fields.forEach(field => {
@@ -1015,7 +1015,7 @@ $articles = getArticles();
         }
     }
 
-    // Event Listeners fÃ¼r Radio Buttons hinzufÃ¼gen
+    // Event Listeners für Radio Buttons hinzufügen
     document.addEventListener("DOMContentLoaded", function() {
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
         const positionRadios = document.querySelectorAll("input[name='positionType']");
@@ -1024,7 +1024,7 @@ $articles = getArticles();
             bekommtStaffelCheckbox.addEventListener("change", updateStaffelFields);
         }
 
-        // Event Listener fÃ¼r Position Radio Buttons
+        // Event Listener für Position Radio Buttons
         positionRadios.forEach(radio => {
             radio.addEventListener("change", function() {
                 const staffelStartField = document.getElementById("modal_staffelStart");
