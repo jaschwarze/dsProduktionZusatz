@@ -84,10 +84,14 @@ try {
             $dvd_amount = $matches[2];
             $time = time();
 
-            $sql = "SELECT partnerID FROM ds WHERE barcode = $ordernumber;";
+            $sql = "SELECT partnerID FROM ds WHERE barcode = $ordernumber AND rechnungsdatum IS NULL;";
             $result = mysql_query($sql);
             if(!$result) {
                 throw new Exception("Konnte die Partner-ID nicht abfragen");
+            }
+
+            if (mysql_num_rows($result) != 1) {
+                throw new Exception("Konnte die Partner-ID nicht eindeutig feststellen");
             }
 
             $row = mysql_fetch_array($result);
