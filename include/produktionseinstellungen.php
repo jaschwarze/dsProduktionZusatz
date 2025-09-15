@@ -47,10 +47,10 @@ function getGeneralSettings() {
 
 function updateHotfolderSettings() {
     $fields = array(
-        "NAS_IP", "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
-        "WAITING_PATH", "CAPTURING_PATH", "BATCHEN_PATH", "FINISHED_PATH",
-        "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH",
-        "BURNER_NAME", "BURNER_PATH", "DVD_SPACE_FOR_USE", "DVD_MAX_IMAGES"
+            "NAS_IP", "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
+            "WAITING_PATH", "CAPTURING_PATH", "BATCHEN_PATH", "FINISHED_PATH",
+            "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH",
+            "BURNER_NAME", "BURNER_PATH", "DVD_SPACE_FOR_USE", "DVD_MAX_IMAGES"
     );
 
     $setParts = array();
@@ -72,9 +72,12 @@ function updateHotfolderSettings() {
     return "Keine Änderungen vorgenommen.";
 }
 
+/**
+ * @throws Exception
+ */
 function updateGeneralSettings() {
     $fields = array(
-        "NAS_IP", "FILMOMAT_IP"
+            "NAS_IP", "FILMOMAT_IP"
     );
 
     $setParts = array();
@@ -88,7 +91,38 @@ function updateGeneralSettings() {
     if (!empty($setParts)) {
         $query = "UPDATE produktionsworkflowseinstellungen SET " . implode(', ', $setParts) . " LIMIT 1";
         if (mysql_query($query)) {
-            return "Allgemeine Produktionseinstellungen erfolgreich aktualisiert.";
+            $success_message = "Allgemeine Produktionseinstellungen erfolgreich aktualisiert.";
+
+            // Partner DVD-Artikel Einstellungen aktualisieren
+            if (isset($_POST["partnersOhneDVD"]) && is_array($_POST["partnersOhneDVD"])) {
+                $partnersOhneDVD = $_POST["partnersOhneDVD"];
+
+                // Alle Partner zurücksetzen auf bekommtDVDArtikel = 1
+                $resetQuery = "UPDATE partner SET bekommtDVDArtikel = 1";
+                $result = mysql_query($resetQuery);
+                if(!$result) {
+                    throw new Exception("Fehler beim Aktualisieren: " . mysql_error());
+                }
+
+                // Ausgewählte Partner auf bekommtDVDArtikel = 0 setzen
+                if (!empty($partnersOhneDVD)) {
+                    $partnerIds = array();
+                    foreach ($partnersOhneDVD as $partnerId) {
+                        $partnerIds[] = intval($partnerId);
+                    }
+                    if (!empty($partnerIds)) {
+                        $updateQuery = "UPDATE partner SET bekommtDVDArtikel = 0 WHERE ID IN (" . implode(',', $partnerIds) . ")";
+                        $result = mysql_query($updateQuery);
+                        if(!$result) {
+                            throw new Exception("Fehler beim Aktualisieren: " . mysql_error());
+                        }
+                    }
+                }
+
+                $success_message .= " Partner DVD-Artikel Einstellungen wurden ebenfalls aktualisiert.";
+            }
+
+            return $success_message;
         } else {
             return "Fehler beim Aktualisieren: " . mysql_error();
         }
@@ -104,6 +138,26 @@ function getWorkflows() {
         $workflows[] = $row;
     }
     return $workflows;
+}
+
+function getAllPartners() {
+    $query = "SELECT ID, name, bekommtDVDArtikel FROM partner WHERE aktiv = 1 ORDER BY name";
+    $result = mysql_query($query);
+    $partners = array();
+    while ($row = mysql_fetch_assoc($result)) {
+        $partners[] = $row;
+    }
+    return $partners;
+}
+
+function getPartnersOhneDVD() {
+    $query = "SELECT ID, name FROM partner WHERE bekommtDVDArtikel = 0 AND aktiv = 1 ORDER BY name";
+    $result = mysql_query($query);
+    $partners = array();
+    while ($row = mysql_fetch_assoc($result)) {
+        $partners[] = $row;
+    }
+    return $partners;
 }
 
 function addWorkflow() {
@@ -231,6 +285,8 @@ $hotfolder_settings = getHotfolderSettings();
 $general_settings = getGeneralSettings();
 $workflows = getWorkflows();
 $articles = getArticles();
+$all_partners = getAllPartners();
+$partners_ohne_dvd = getPartnersOhneDVD();
 ?>
 
 <!DOCTYPE html>
@@ -320,6 +376,77 @@ $articles = getArticles();
 
         .zusatz-positions-section h4 {
             color: #666;
+        }
+
+        .partner-dvd-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .partner-selection-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            margin: 10px 0;
+        }
+
+        .partner-lists {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .partner-list {
+            flex: 1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .partner-list h4 {
+            margin: 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ccc;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .partner-list-content {
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .partner-item {
+            padding: 8px;
+            margin: 3px 0;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .partner-item:hover {
+            background-color: #dee2e6;
+        }
+
+        .partner-item.selected {
+            background-color: #cce5ff;
+            border: 1px solid #007cba;
+        }
+
+        .partner-controls {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .partner-controls button {
+            margin: 5px;
+            width: 120px;
         }
     </style>
 </head>
@@ -429,17 +556,55 @@ $articles = getArticles();
 
 <div class="section">
     <h2>Allgemeine Produktionseinstellungen</h2>
-    <form method="post">
+    <form method="post" id="generalSettingsForm">
         <input type="hidden" name="action" value="update_general_settings">
 
         <div class="form-group">
-            <label for="NAS_IP">NAS-IP:</label>
-            <input type="text" id="NAS_IP" name="NAS_IP" value="<?php echo htmlspecialchars($general_settings['NAS_IP']); ?>">
+            <label for="NAS_IP_general">NAS-IP:</label>
+            <input type="text" id="NAS_IP_general" name="NAS_IP" value="<?php echo htmlspecialchars($general_settings['NAS_IP']); ?>">
         </div>
 
         <div class="form-group">
             <label for="FILMOMAT_IP">FILMOMAT-IP:</label>
             <input type="text" id="FILMOMAT_IP" name="FILMOMAT_IP" value="<?php echo htmlspecialchars($general_settings['FILMOMAT_IP']); ?>">
+        </div>
+
+        <div class="partner-dvd-section">
+            <h3>Partner ohne DVD-Artikel</h3>
+            <p>Hier können Sie festlegen, welche Partner nicht den normalen DVD-Artikel erhalten sollen, damit diese nicht vom automatischen DVD-Hotfodler eingetragen werden.</p>
+
+            <div class="partner-selection-container">
+                <div class="partner-lists">
+                    <div class="partner-list">
+                        <h4>Verfügbare Partner</h4>
+                        <div class="partner-list-content" id="availablePartners">
+                            <?php foreach ($all_partners as $partner): ?>
+                                <?php if ($partner["bekommtDVDArtikel"] == 1): ?>
+                                    <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'available')">
+                                        <?php echo $partner["name"]; ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="partner-controls">
+                        <button type="button" class="btn" onclick="movePartnersToWithoutDVD()">Hinzufügen</button>
+                        <button type="button" class="btn" onclick="movePartnersToAvailable()">Entfernen</button>
+                    </div>
+
+                    <div class="partner-list">
+                        <h4>Partner ohne DVD-Artikel</h4>
+                        <div class="partner-list-content" id="partnersWithoutDVD">
+                            <?php foreach ($partners_ohne_dvd as $partner): ?>
+                                <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'without')">
+                                    <?php echo $partner["name"]; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="btn">Einstellungen speichern</button>
@@ -685,6 +850,85 @@ $articles = getArticles();
     let currentWorkflowId = null;
     let isEditMode = false;
     let localArticles = []; // Lokale Artikel-Liste für das Modal
+
+    // Partner DVD Management Functions
+    function togglePartnerSelection(element, listType) {
+        element.classList.toggle("selected");
+    }
+
+    function selectAllAvailable() {
+        const items = document.querySelectorAll("#availablePartners .partner-item");
+        items.forEach(item => item.classList.add("selected"));
+    }
+
+    function deselectAllAvailable() {
+        const items = document.querySelectorAll("#availablePartners .partner-item");
+        items.forEach(item => item.classList.remove("selected"));
+    }
+
+    function selectAllWithoutDVD() {
+        const items = document.querySelectorAll("#partnersWithoutDVD .partner-item");
+        items.forEach(item => item.classList.add("selected"));
+    }
+
+    function deselectAllWithoutDVD() {
+        const items = document.querySelectorAll("#partnersWithoutDVD .partner-item");
+        items.forEach(item => item.classList.remove("selected"));
+    }
+
+    function movePartnersToWithoutDVD() {
+        const selectedItems = document.querySelectorAll("#availablePartners .partner-item.selected");
+        const targetContainer = document.getElementById("partnersWithoutDVD");
+
+        selectedItems.forEach(item => {
+            item.classList.remove("selected");
+            item.setAttribute("onclick", "togglePartnerSelection(this, 'without')");
+            targetContainer.appendChild(item);
+        });
+
+        updateHiddenPartnerInputs();
+    }
+
+    function movePartnersToAvailable() {
+        const selectedItems = document.querySelectorAll("#partnersWithoutDVD .partner-item.selected");
+        const targetContainer = document.getElementById("availablePartners");
+
+        selectedItems.forEach(item => {
+            item.classList.remove("selected");
+            item.setAttribute("onclick", "togglePartnerSelection(this, 'available')");
+            targetContainer.appendChild(item);
+        });
+
+        updateHiddenPartnerInputs();
+    }
+
+    function updateHiddenPartnerInputs() {
+        // Remove existing hidden inputs
+        const existingInputs = document.querySelectorAll("input[name^='partnersOhneDVD']");
+        existingInputs.forEach(input => input.remove());
+
+        // Add new hidden inputs for partners without DVD
+        const partnersWithoutDVD = document.querySelectorAll("#partnersWithoutDVD .partner-item");
+        const form = document.getElementById("generalSettingsForm");
+
+        partnersWithoutDVD.forEach((item, index) => {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = `partnersOhneDVD[${index}]`;
+            input.value = item.getAttribute("data-partner-id");
+            form.appendChild(input);
+        });
+    }
+
+    // Initialize hidden inputs on page load
+    document.addEventListener("DOMContentLoaded", function() {
+        updateHiddenPartnerInputs();
+
+        // Update inputs whenever form is submitted
+        document.getElementById("generalSettingsForm").addEventListener("submit", function() {
+            updateHiddenPartnerInputs();
+        });
+    });
 
     function openWorkflowModal() {
         isEditMode = false;
