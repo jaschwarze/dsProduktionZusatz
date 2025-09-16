@@ -169,13 +169,12 @@ function addWorkflow() {
     $batchID = mysql_real_escape_string($_POST["batchID"]);
     $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
     $abteilung = mysql_real_escape_string($_POST["abteilung"]);
-    $bekommtPhotoshop = isset($_POST["bekommtPhotoshop"]) ? 1 : 0;
     $bekommtViesus = isset($_POST["bekommtViesus"]) ? 1 : 0;
     $bekommtMoebius = isset($_POST["bekommtMoebius"]) ? 1 : 0;
     $zielSpeichermedium = mysql_real_escape_string($_POST["zielSpeichermedium"]);
 
-    $query = "INSERT INTO produktionsworkflows (name, partnerID, arbeitsschrittID, bekommtStaffel, bekommtUnterordner, batchID, zielpfad, abteilung, bekommtPhotoshop, bekommtViesus, bekommtMoebius, zielSpeichermedium) 
-              VALUES ('$name', $partnerID, $arbeitsschrittID, $bekommtStaffel, $bekommtUnterordner, '$batchID', '$zielpfad', '$abteilung', $bekommtPhotoshop, $bekommtViesus, $bekommtMoebius, '$zielSpeichermedium')";
+    $query = "INSERT INTO produktionsworkflows (name, partnerID, arbeitsschrittID, bekommtStaffel, bekommtUnterordner, batchID, zielpfad, abteilung, bekommtViesus, bekommtMoebius, zielSpeichermedium) 
+              VALUES ('$name', $partnerID, $arbeitsschrittID, $bekommtStaffel, $bekommtUnterordner, '$batchID', '$zielpfad', '$abteilung', $bekommtViesus, $bekommtMoebius, '$zielSpeichermedium')";
 
     if (mysql_query($query)) {
         $workflowID = mysql_insert_id();
@@ -211,7 +210,6 @@ function updateWorkflow() {
     $batchID = mysql_real_escape_string($_POST["batchID"]);
     $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
     $abteilung = mysql_real_escape_string($_POST["abteilung"]);
-    $bekommtPhotoshop = isset($_POST["bekommtPhotoshop"]) ? 1 : 0;
     $bekommtViesus = isset($_POST["bekommtViesus"]) ? 1 : 0;
     $bekommtMoebius = isset($_POST["bekommtMoebius"]) ? 1 : 0;
     $zielSpeichermedium = mysql_real_escape_string($_POST["zielSpeichermedium"]);
@@ -225,7 +223,6 @@ function updateWorkflow() {
               batchID = '$batchID', 
               zielpfad = '$zielpfad', 
               abteilung = '$abteilung', 
-              bekommtPhotoshop = $bekommtPhotoshop, 
               bekommtViesus = $bekommtViesus, 
               bekommtMoebius = $bekommtMoebius, 
               zielSpeichermedium = '$zielSpeichermedium' 
@@ -760,11 +757,6 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                             </label>
 
                             <label>
-                                <input type="checkbox" name="bekommtPhotoshop" id="modal_bekommtPhotoshop">
-                                Bekommt Photoshop
-                            </label>
-
-                            <label>
                                 <input type="checkbox" name="bekommtViesus" id="modal_bekommtViesus">
                                 Bekommt Viesus
                             </label>
@@ -981,7 +973,6 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                 // Set checkboxes
                 document.getElementById("modal_bekommtStaffel").checked = workflow.bekommtStaffel == 1;
                 document.getElementById("modal_bekommtUnterordner").checked = workflow.bekommtUnterordner == 1;
-                document.getElementById("modal_bekommtPhotoshop").checked = workflow.bekommtPhotoshop == 1;
                 document.getElementById("modal_bekommtViesus").checked = workflow.bekommtViesus == 1;
                 document.getElementById("modal_bekommtMoebius").checked = workflow.bekommtMoebius == 1;
 
