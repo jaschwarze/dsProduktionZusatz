@@ -316,6 +316,8 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         .btn-danger:hover { background: #c82333; }
         .btn-success { background: #28a745; }
         .btn-success:hover { background: #218838; }
+        .btn:disabled { cursor: not-allowed !important; background-color: #6c757d !important; }
+        .btn:disabled:hover { background-color: #6c757d !important; }
         .message { padding: 10px; margin: 10px 0; border-radius: 3px; }
         .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -906,6 +908,27 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     let isEditMode = false;
     let localArticles = []; // Lokale Artikel-Liste für das Modal
 
+    function validateWorkflowArticles() {
+        const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
+        const saveButton = document.getElementById("saveButton");
+
+        // Zähle normale Positionen (nicht Spezial- oder Zusatzpositionen)
+        const normalArticles = localArticles.filter(article =>
+            article.spezialPosition !== 1 && article.zusatzPosition !== 1
+        );
+
+        // Wenn bekommtStaffel nicht gesetzt ist und mehr als 1 normaler Artikel vorhanden
+        if (!bekommtStaffelCheckbox.checked && normalArticles.length > 1) {
+            saveButton.disabled = true;
+            saveButton.style.opacity = "0.5";
+            saveButton.title = "Workflows ohne Staffel dürfen nur einen normalen Artikel enthalten";
+        } else {
+            saveButton.disabled = false;
+            saveButton.style.opacity = "1";
+            saveButton.title = "";
+        }
+    }
+
     // Partner DVD Management Functions
     function togglePartnerSelection(element, listType) {
         element.classList.toggle("selected");
@@ -1093,6 +1116,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
         updateStaffelFields();
         updateEintrageModusFields();
+        validateWorkflowArticles();
     }
 
     function addArticleToList() {
@@ -1144,6 +1168,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     function updateArticlesDisplay() {
         updateNormalArticlesDisplay();
         updateZusatzPositionsDisplay();
+        validateWorkflowArticles();
     }
 
     function updateNormalArticlesDisplay() {
@@ -1257,6 +1282,15 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             return;
         }
 
+        const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
+        const normalArticles = localArticles.filter(article =>
+            article.spezialPosition !== 1 && article.zusatzPosition !== 1
+        );
+
+        if (!bekommtStaffelCheckbox.checked && normalArticles.length > 1) {
+            alert("Workflows ohne Staffel dürfen nur einen normalen Artikel enthalten. Bitte entfernen Sie überschüssige normale Artikel oder aktivieren Sie 'Bekommt Staffel'.");
+            return;
+        }
 
         // Erstelle versteckte Inputs für die Artikel
         const form = document.getElementById("workflowForm");
@@ -1350,7 +1384,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         const positionRadios = document.querySelectorAll("input[name='positionType']");
 
         if (bekommtStaffelCheckbox) {
-            bekommtStaffelCheckbox.addEventListener("change", updateStaffelFields);
+            bekommtStaffelCheckbox.addEventListener("change", function() {
+                updateStaffelFields();
+                validateWorkflowArticles();
+            });
         }
 
         // Event Listener für Position Radio Buttons
