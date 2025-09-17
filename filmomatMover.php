@@ -341,7 +341,7 @@ try {
         $row = mysql_fetch_assoc($result);
         if(!$row) {
             throw new Exception("Konnte die Batch-ID für Auftrag $ordernumber nicht auslesen");
-        }a
+        }
 
         $batch_id = $row["batchID"];
         $queue_path = "\\\\$nas_IP\Diaproduktion\Capturing\Warteschlange_Batch_$batch_id"."_01";
