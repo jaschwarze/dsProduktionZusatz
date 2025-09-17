@@ -827,6 +827,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
                         <div class="zusatz-positions-section">
                             <h4>Zusatzpositionen</h4>
+                            <h6><i>Werden automatisch eingetragen, falls Aufträge passende Auftragsposition haben</i></h6>
                             <div id="zusatzPositions">
                                 <!-- Will be populated via JavaScript -->
                             </div>
