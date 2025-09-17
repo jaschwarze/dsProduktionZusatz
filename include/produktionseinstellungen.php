@@ -188,9 +188,11 @@ function addWorkflow() {
                 $zusatzPosition = intval($article["zusatzPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
+                $eintrageModus = ($zusatzPosition == 1 && isset($article["eintrageModus"])) ?
+                        mysql_real_escape_string($article["eintrageModus"]) : "anzahl";
 
-                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde) 
-                                VALUES ($workflowID, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde)";
+                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde, eintrageModus) 
+                                VALUES ($workflowID, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
                 mysql_query($articleQuery);
             }
         }
@@ -244,9 +246,11 @@ function updateWorkflow() {
                 $zusatzPosition = intval($article["zusatzPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
+                $eintrageModus = ($zusatzPosition == 1 && isset($article["eintrageModus"])) ?
+                        mysql_real_escape_string($article["eintrageModus"]) : "anzahl";
 
-                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde) 
-                                VALUES ($id, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde)";
+                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde, eintrageModus) 
+                                VALUES ($id, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
                 mysql_query($articleQuery);
             }
         }
@@ -447,6 +451,42 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         .partner-controls button {
             margin: 5px;
             width: 120px;
+        }
+
+        .eintrage-modus-section {
+            border-top: 1px solid #ddd;
+        }
+
+        .eintrage-modus-section h5 {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .eintrage-modus-group {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .eintrage-modus-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            width: auto;
+            margin: 0;
+        }
+
+        .eintrage-modus-group input[type="radio"] {
+            margin: 0;
+            width: auto;
+        }
+
+        .eintrage-modus-section.disabled {
+            opacity: 0.5;
+        }
+
+        .eintrage-modus-section.disabled input[type="radio"] {
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -833,6 +873,20 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                                 <input type="number" id="modal_staffelEnde" value="0" style="width: 100%;" disabled>
                             </div>
 
+                            <div class="eintrage-modus-section disabled" id="eintrageModusSection">
+                                <h5>Eintrage-Modus (nur für Zusatzpositionen)</h5>
+                                <div class="eintrage-modus-group">
+                                    <label>
+                                        <input type="radio" name="eintrageModus" value="anzahl" id="modal_eintrageModusAnzahl" checked>
+                                        Nach Bildanzahl
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="eintrageModus" value="1" id="modal_eintrageModus1">
+                                        1x
+                                    </label>
+                                </div>
+                            </div>
+
                             <button type="button" class="btn" onclick="addArticleToList()">Artikel hinzufügen</button>
                         </div>
                     </div>
@@ -993,6 +1047,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                     zusatzPosition: parseInt(article.zusatzPosition || 0),
                     staffelStart: parseInt(article.staffelStart),
                     staffelEnde: parseInt(article.staffelEnde),
+                    eintrageModus: article.eintrageModus || "anzahl",
                     isNew: false
                 }));
 
@@ -1036,6 +1091,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         }
 
         updateStaffelFields();
+        updateEintrageModusFields();
     }
 
     function addArticleToList() {
@@ -1043,6 +1099,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         const positionType = document.querySelector("input[name='positionType']:checked").value;
         const staffelStart = parseInt(document.getElementById("modal_staffelStart").value) || 0;
         const staffelEnde = parseInt(document.getElementById("modal_staffelEnde").value) || 0;
+        const eintrageModus = document.querySelector("input[name='eintrageModus']:checked").value;
 
         if (!artNr) {
             alert("Bitte wählen Sie einen Artikel aus.");
@@ -1063,6 +1120,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             zusatzPosition: positionType === "zusatz" ? 1 : 0,
             staffelStart: staffelStart,
             staffelEnde: staffelEnde,
+            eintrageModus: positionType === "zusatz" ? eintrageModus : "anzahl",
             isNew: true
         };
 
@@ -1110,7 +1168,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
             html += `<tr>
             <td>${escapeHtml(article.artNr)}</td>
-            <td>${article.spezialPosition == 1 ? "Ja" : "Nein"}</td>
+            <td>${article.spezialPosition === 1 ? "Ja" : "Nein"}</td>
             <td>${article.staffelStart}</td>
             <td>${article.staffelEnde}</td>
             <td>${statusText}</td>
@@ -1133,15 +1191,17 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             return;
         }
 
-        let html = "<table><tr><th>Artikel Nr.</th><th>Status</th><th>Aktionen</th></tr>";
+        let html = "<table><tr><th>Artikel Nr.</th><th>Eintrage-Modus</th><th>Status</th><th>Aktionen</th></tr>";
 
         zusatzArticles.sort((a, b) => a.artNr.localeCompare(b.artNr));
 
         zusatzArticles.forEach((article) => {
             const index = localArticles.indexOf(article);
             const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
+            const eintrageModusText = article.eintrageModus === "1" ? "1x" : "Bildanzahl";
             html += `<tr>
             <td>${escapeHtml(article.artNr)}</td>
+            <td>${eintrageModusText}</td>
             <td>${statusText}</td>
             <td>
                 <button type="button" class="btn btn-danger" onclick="removeArticleFromList(${index})">Entfernen</button>
@@ -1158,8 +1218,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         document.getElementById("modal_staffelStart").value = "0";
         document.getElementById("modal_staffelEnde").value = "0";
         document.getElementById("modal_normalPosition").checked = true;
+        document.getElementById("modal_eintrageModusAnzahl").checked = true;
 
         updateStaffelFields();
+        updateEintrageModusFields();
     }
 
     function submitWorkflowForm() {
@@ -1204,7 +1266,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
         // Füge neue Artikel-Inputs hinzu
         localArticles.forEach((article, index) => {
-            const fields = ["artNr", "spezialPosition", "zusatzPosition", "staffelStart", "staffelEnde"];
+            const fields = ["artNr", "spezialPosition", "zusatzPosition", "staffelStart", "staffelEnde", "eintrageModus"];
             fields.forEach(field => {
                 const input = document.createElement("input");
                 input.type = "hidden";
@@ -1259,6 +1321,28 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         }
     }
 
+    function updateEintrageModusFields() {
+        const positionType = document.querySelector("input[name='positionType']:checked");
+        const eintrageModusSection = document.getElementById("eintrageModusSection");
+        const eintrageModusRadios = document.querySelectorAll("input[name='eintrageModus']");
+
+        if (positionType && positionType.value === "zusatz") {
+            // Eintrage-Modus aktivieren für Zusatzpositionen
+            eintrageModusSection.classList.remove("disabled");
+            eintrageModusRadios.forEach(radio => {
+                radio.disabled = false;
+            });
+        } else {
+            // Eintrage-Modus deaktivieren für normale und Spezial-Positionen
+            eintrageModusSection.classList.add("disabled");
+            eintrageModusRadios.forEach(radio => {
+                radio.disabled = true;
+            });
+            // Zurück auf "anzahl" setzen
+            document.getElementById("modal_eintrageModusAnzahl").checked = true;
+        }
+    }
+
     // Event Listeners für Radio Buttons hinzufügen
     document.addEventListener("DOMContentLoaded", function() {
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
@@ -1284,8 +1368,14 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                     // Bei anderen Positionen normale Logik anwenden
                     updateStaffelFields();
                 }
+
+                // Eintrage-Modus Felder aktualisieren
+                updateEintrageModusFields();
             });
         });
+
+        // Initial state für Eintrage-Modus setzen
+        updateEintrageModusFields();
     });
 </script>
 
