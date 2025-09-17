@@ -1275,7 +1275,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                 const staffelEndeField = document.getElementById("modal_staffelEnde");
 
                 // Bei Zusatzposition keine Staffel-Felder aktivieren
-                if (this.value === "zusatz") {
+                if (this.value === "zusatz" || this.value === "spezial") {
                     staffelStartField.disabled = true;
                     staffelEndeField.disabled = true;
                     staffelStartField.value = "0";
