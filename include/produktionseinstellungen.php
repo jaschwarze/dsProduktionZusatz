@@ -1292,6 +1292,43 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             return;
         }
 
+        if (bekommtStaffelCheckbox.checked && normalArticles.length > 0) {
+            // Prüfe ob alle normalen Artikel StaffelStart > 0 haben
+            const invalidStaffelStart = normalArticles.filter(article => article.staffelStart <= 0);
+            if (invalidStaffelStart.length > 0) {
+                const invalidArticles = invalidStaffelStart.map(article => article.artNr).join(', ');
+                alert(`Bei aktiviertem 'Bekommt Staffel' müssen alle normalen Positionen einen StaffelStart > 0 haben.\nBetroffene Artikel: ${invalidArticles}`);
+                return;
+            }
+
+            // Prüfe ob nur ein Artikel StaffelEnde = 0 hat (unbegrenztes Ende)
+            const unlimitedEndArticles = normalArticles.filter(article => article.staffelEnde === 0);
+            if (unlimitedEndArticles.length > 1) {
+                const unlimitedArticles = unlimitedEndArticles.map(article => article.artNr).join(', ');
+                alert(`Bei aktiviertem 'Bekommt Staffel' darf nur ein normaler Artikel unbegrenztes StaffelEnde (0) haben.\nBetroffene Artikel: ${unlimitedArticles}`);
+                return;
+            }
+
+            // Prüfe auf überlappende Staffelbereiche
+            const sortedArticles = normalArticles.slice().sort((a, b) => a.staffelStart - b.staffelStart);
+            for (let i = 0; i < sortedArticles.length - 1; i++) {
+                const current = sortedArticles[i];
+                const next = sortedArticles[i + 1];
+
+                // Wenn aktueller Artikel kein Ende hat (0), dann darf kein weiterer folgen
+                if (current.staffelEnde === 0) {
+                    alert(`Artikel '${current.artNr}' hat unbegrenztes StaffelEnde und darf nicht vor anderen Artikeln stehen.\nKonflikt mit Artikel '${next.artNr}'`);
+                    return;
+                }
+
+                // Prüfe auf Überlappung: nächster Start <= aktuelles Ende
+                if (next.staffelStart <= current.staffelEnde) {
+                    alert(`Staffelbereiche überlappen sich:\nArtikel '${current.artNr}' (${current.staffelStart}-${current.staffelEnde}) und Artikel '${next.artNr}' (${next.staffelStart}-${next.staffelEnde || 'unbegrenzt'})`);
+                    return;
+                }
+            }
+        }
+
         // Erstelle versteckte Inputs für die Artikel
         const form = document.getElementById("workflowForm");
 
