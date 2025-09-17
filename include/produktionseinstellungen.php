@@ -166,6 +166,7 @@ function addWorkflow() {
     $arbeitsschrittID = intval($_POST["arbeitsschrittID"]);
     $bekommtStaffel = isset($_POST["bekommtStaffel"]) ? 1 : 0;
     $bekommtUnterordner = isset($_POST["bekommtUnterordner"]) ? 1 : 0;
+    $bekommtDigiSonderartikel = isset($_POST["bekommtDigiSonderartikel"]) ? 1 : 0;
     $batchID = mysql_real_escape_string($_POST["batchID"]);
     $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
     $abteilung = mysql_real_escape_string($_POST["abteilung"]);
@@ -173,8 +174,8 @@ function addWorkflow() {
     $bekommtMoebius = isset($_POST["bekommtMoebius"]) ? 1 : 0;
     $zielSpeichermedium = mysql_real_escape_string($_POST["zielSpeichermedium"]);
 
-    $query = "INSERT INTO produktionsworkflows (name, partnerID, arbeitsschrittID, bekommtStaffel, bekommtUnterordner, batchID, zielpfad, abteilung, bekommtViesus, bekommtMoebius, zielSpeichermedium) 
-              VALUES ('$name', $partnerID, $arbeitsschrittID, $bekommtStaffel, $bekommtUnterordner, '$batchID', '$zielpfad', '$abteilung', $bekommtViesus, $bekommtMoebius, '$zielSpeichermedium')";
+    $query = "INSERT INTO produktionsworkflows (name, partnerID, arbeitsschrittID, bekommtStaffel, bekommtUnterordner, bekommtDigiSonderartikel, batchID, zielpfad, abteilung, bekommtViesus, bekommtMoebius, zielSpeichermedium) 
+              VALUES ('$name', $partnerID, $arbeitsschrittID, $bekommtStaffel, $bekommtUnterordner, $bekommtDigiSonderartikel, '$batchID', '$zielpfad', '$abteilung', $bekommtViesus, $bekommtMoebius, '$zielSpeichermedium')";
 
     if (mysql_query($query)) {
         $workflowID = mysql_insert_id();
@@ -207,6 +208,7 @@ function updateWorkflow() {
     $arbeitsschrittID = intval($_POST["arbeitsschrittID"]);
     $bekommtStaffel = isset($_POST["bekommtStaffel"]) ? 1 : 0;
     $bekommtUnterordner = isset($_POST["bekommtUnterordner"]) ? 1 : 0;
+    $bekommtDigiSonderartikel = isset($_POST["bekommtDigiSonderartikel"]) ? 1 : 0;
     $batchID = mysql_real_escape_string($_POST["batchID"]);
     $zielpfad = mysql_real_escape_string($_POST["zielpfad"]);
     $abteilung = mysql_real_escape_string($_POST["abteilung"]);
@@ -219,7 +221,8 @@ function updateWorkflow() {
               partnerID = $partnerID, 
               arbeitsschrittID = $arbeitsschrittID, 
               bekommtStaffel = $bekommtStaffel, 
-			  bekommtUnterordner = $bekommtUnterordner, 
+			  bekommtUnterordner = $bekommtUnterordner,
+			  bekommtDigiSonderartikel = $bekommtDigiSonderartikel, 
               batchID = '$batchID', 
               zielpfad = '$zielpfad', 
               abteilung = '$abteilung', 
@@ -568,7 +571,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
         <div class="partner-dvd-section">
             <h3>Partner ohne DVD-Artikel</h3>
-            <p>Hier können Sie festlegen, welche Partner nicht den normalen DVD-Artikel erhalten sollen, damit diese nicht vom automatischen DVD-Hotfodler eingetragen werden.</p>
+            <p>Hier können Sie festlegen, welche Partner nicht den normalen DVD-Artikel erhalten sollen, damit diese nicht vom automatischen DVD-Hotfolder eingetragen werden.</p>
 
             <div class="partner-selection-container">
                 <div class="partner-lists">
@@ -754,6 +757,11 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                             <label>
                                 <input type="checkbox" name="bekommtUnterordner" id="modal_bekommtUnterordner">
                                 Bekommt Unterordner
+                            </label>
+
+                            <label>
+                                <input type="checkbox" name="bekommtDigiSonderartikel" id="modal_bekommtDigiSonderartikel">
+                                Bekommt Digi-Sonderartikel
                             </label>
 
                             <label>
@@ -973,6 +981,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                 // Set checkboxes
                 document.getElementById("modal_bekommtStaffel").checked = workflow.bekommtStaffel == 1;
                 document.getElementById("modal_bekommtUnterordner").checked = workflow.bekommtUnterordner == 1;
+                document.getElementById("modal_bekommtDigiSonderartikel").checked = workflow.bekommtDigiSonderartikel == 1;
                 document.getElementById("modal_bekommtViesus").checked = workflow.bekommtViesus == 1;
                 document.getElementById("modal_bekommtMoebius").checked = workflow.bekommtMoebius == 1;
 
