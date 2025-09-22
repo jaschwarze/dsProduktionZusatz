@@ -84,14 +84,14 @@ try {
             $dvd_amount = $matches[2];
             $time = time();
 
-            $sql = "SELECT partnerID FROM ds WHERE barcode = $ordernumber AND (rechnungsdatum = '' OR rechnungsdatum IS NULL);";
+            $sql = "SELECT partnerID, rechnungsdatum FROM ds WHERE barcode = $ordernumber;";
             $result = mysql_query($sql);
             if(!$result) {
                 throw new Exception("Konnte die Partner-ID nicht abfragen");
             }
 
             if (mysql_num_rows($result) != 1) {
-                throw new Exception("Der Auftrag $ordernumber hat keinen DS-Eintrag oder ist bereits abgerechnet");
+                throw new Exception("Der Auftrag $ordernumber hat keinen DS-Eintrag");
             }
 
             $row = mysql_fetch_array($result);
@@ -100,10 +100,15 @@ try {
             }
 
             $partner_id = intval($row["partnerID"]);
+            $rechnungsdatum = $row["rechnungsdatum"];
 
             if(in_array($partner_id, $partner_ids_to_skip)) {
                 $delete = true;
             } else {
+                if($rechnungsdatum != "") {
+                    throw new Exception("Der Auftrag $ordernumber ist bereits abgerechnet");
+                }
+
                 $sql = "
 				INSERT INTO workinglog 
 					(mitarbeiterid, auftragsBarcode, start, ende) 
