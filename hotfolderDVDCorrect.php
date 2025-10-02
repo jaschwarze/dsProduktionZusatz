@@ -109,6 +109,38 @@ try {
                     throw new Exception("Der Auftrag $ordernumber ist bereits abgerechnet");
                 }
 
+                // Bereits produzierte Anzahl DVDs bestimmen
+                $sql = "SELECT ID from workinglog WHERE auftragsBarcode = '$ordernumber';";
+                $result = mysql_query($sql);
+                $working_log_ids = array();
+                while ($row = mysql_fetch_assoc($result)) {
+                    $working_log_ids[] = $row["ID"];
+                }
+
+                $current_dvd_amount = 0;
+                foreach ($working_log_ids as $working_log_id) {
+                    $sql = "SELECT amount FROM workinglogpositions WHERE workingLogID = $working_log_id AND artNr = 'dvd';";
+                    $result = mysql_query($sql);
+                    if(!$result) {
+                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
+                    }
+
+                    if(mysql_num_rows($result) > 1) {
+                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
+                    }
+
+                    if(mysql_num_rows($result) == 0) {
+                        continue;
+                    }
+
+                    $row = mysql_fetch_assoc($result);
+                    if(!$row) {
+                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
+                    }
+
+                    $current_dvd_amount += $row["amount"];
+                }
+
                 $sql = "
 				INSERT INTO workinglog 
 					(mitarbeiterid, auftragsBarcode, start, ende) 
@@ -152,37 +184,6 @@ try {
                     throw new Exception("Fehler beim Eintragen der Arbeitsschritte");
                 }
 
-                // Bereits produzierte Anzahl DVDs bestimmen
-                $sql = "SELECT ID from workinglog WHERE auftragsBarcode = '$ordernumber';";
-                $result = mysql_query($sql);
-                $working_log_ids = array();
-                while ($row = mysql_fetch_assoc($result)) {
-                    $working_log_ids[] = $row["ID"];
-                }
-
-                $current_dvd_amount = 0;
-                foreach ($working_log_ids as $working_log_id) {
-                    $sql = "SELECT amount FROM workinglogpositions WHERE workingLogID = $working_log_id AND artNr = 'dvd';";
-                    $result = mysql_query($sql);
-                    if(!$result) {
-                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
-                    }
-
-                    if(mysql_num_rows($result) > 1) {
-                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
-                    }
-
-                    if(mysql_num_rows($result) == 0) {
-                        continue;
-                    }
-
-                    $row = mysql_fetch_assoc($result);
-                    if(!$row) {
-                        throw new Exception("Fehler beim Auslesen der DVD-Menge");
-                    }
-
-                    $current_dvd_amount += $row["amount"];
-                }
                 $dvd_amount += $current_dvd_amount;
 
                 $sql = "UPDATE orderpos SET amount = $dvd_amount WHERE barcode = $ordernumber AND artNr = 'dvd';";
