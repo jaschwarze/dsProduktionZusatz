@@ -186,18 +186,27 @@ try {
 
                 $dvd_amount += $current_dvd_amount;
 
-                $sql = "UPDATE orderpos SET amount = $dvd_amount WHERE barcode = $ordernumber AND artNr = 'dvd';";
+                $sql = "SELECT COUNT(*) FROM orderpos WHERE barcode = '$ordernumber' AND artNr = 'dvd';";
                 $result = mysql_query($sql);
                 if(!$result) {
-                    throw new Exception("Konnte die Auftragspostion für die DVDs nicht anpassen");
+                    throw new Exception("Fehler beim Abfragen der DVDs");
+                }
+                $row = mysql_fetch_row($result);
+                if(!$row) {
+                    throw new Exception("Konnte die DVDs nicht auslesen");
                 }
 
-                if (mysql_affected_rows() == 0) {
+                $dvd_orderpos = $row[0];
+
+                if($dvd_orderpos == 0) {
                     $sql = "INSERT INTO orderpos (artNr, barcode, amount, time) VALUES ('dvd', '$ordernumber', $dvd_amount, unix_timestamp());";
-                    $result = mysql_query($sql);
-                    if(!$result) {
-                        throw new Exception("Fehler beim Anpassen der Auftragsposition");
-                    }
+                } else {
+                    $sql = "UPDATE orderpos SET amount = $dvd_amount WHERE barcode = $ordernumber AND artNr = 'dvd';";
+                }
+
+                $result = mysql_query($sql);
+                if(!$result) {
+                    throw new Exception("Fehler beim Anpassen der Auftragsposition für den DVD-Artikel");
                 }
 
                 $result = gibSollIstAbgleichDerProduktionEinesAuftrages($ordernumber, true);
@@ -209,7 +218,7 @@ try {
 
                     $client_ip = $_SERVER["REMOTE_ADDR"];
 
-                    $sql = "INSERT INTO log (UserID, barcode, time, text, manuell, IP, typ) VALUES ('$userid', '$ordernumber', unix_timestamp(), 'Die Produktion wurde vom automatischen DVD-Hotfolder abgeschlossen.', 0, '$client_ip', 0);";
+                    $sql = "INSERT INTO log (UserID, barcode, time, text, manuell, IP, typ) VALUES ('$userid', '$ordernumber', unix_timestamp(), 'Die Produktion wurde vom automatischen DVD-Hotfolder abgeschlossen. Die Auftragsposition wurde auf $dvd_amount gesetzt.', 0, '$client_ip', 0);";
                     $result = mysql_query($sql);
                     if(!$result) {
                         throw new Exception("Fehler beim Erstellen des History-Eintrags");
