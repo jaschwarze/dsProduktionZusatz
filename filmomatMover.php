@@ -356,7 +356,7 @@ try {
 
     setScriptControlFertig($script_id);
 }catch(Exception $e) {
-    mailAnIT("Fehler auf höchster Ebene beim korrigieren der DVD-Einträge vom Hotfolder in hotfolderDVDCorrect.php: " . $e->getMessage() . "<br/>\n", "Fehler beim Korrigieren der DVD-Einträge!");
+    mailAnIT("Fehler auf höchster Ebene beim Verschieben der Bilder vom Filmomat-Hotfolder in die Warteschlangen in filmomatMover.php: " . $e->getMessage() . "<br/>\n", "Fehler beim Verschieben der Bilder vom Filmomat-Hotfolder!");
     setScriptControlFertig($script_id);
     echo $e->getMessage();
 }
