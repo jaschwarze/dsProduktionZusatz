@@ -186,7 +186,7 @@ function addWorkflow() {
                 $artNr = mysql_real_escape_string($article["artNr"]);
                 $spezialPosition = intval($article["spezialPosition"]);
                 $zusatzPosition = intval($article["zusatzPosition"]);
-                $sonderformatPosition = intval($article["sonderformatPosition"]);
+                $sonderformatPosition = ($partnerID == 407) ? 0 : intval($article["sonderformatPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
 
@@ -252,7 +252,7 @@ function updateWorkflow() {
                 $artNr = mysql_real_escape_string($article["artNr"]);
                 $spezialPosition = intval($article["spezialPosition"]);
                 $zusatzPosition = intval($article["zusatzPosition"]);
-                $sonderformatPosition = intval($article["sonderformatPosition"]);
+                $sonderformatPosition = ($partnerID == 407) ? 0 : intval($article["sonderformatPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
                 if($zusatzPosition == 1 && isset($article["eintrageModus"])) {
@@ -851,7 +851,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
                         <div class="sonderformat-positions-section">
                             <h4>Sonderformate</h4>
-                            <h6><i>Eingabefeld wird in der Maske angezeigt, falls Auftrag eine dieser Auftragpositionen enthält</i></h6>
+                            <h6 id="ceweSonderformatHinweis" style="display: none;">
+                                Für Cewe-Online werden die Sonderformate über einen Faktor über die normalen Artikelpositionen berechnet, falls der Auftrag hierfür vom CC freigegeben wurde.
+                            </h6>
+                            <h6 id="sonderformatStandardHinweis"><i>Eingabefeld wird in der Maske angezeigt, falls Auftrag eine dieser Auftragpositionen enthält</i></h6>
                             <div id="sonderformatPositions">
                                 <!-- Will be populated via JavaScript -->
                             </div>
@@ -937,6 +940,26 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     let currentWorkflowId = null;
     let isEditMode = false;
     let localArticles = []; // Lokale Artikel-Liste für das Modal
+
+    function updateSonderformatAvailability() {
+        const partnerID = parseInt(document.getElementById("modal_partnerID").value, 10) || 0;
+        const isCeweOnline = partnerID === 407;
+        const sonderformatRadio = document.getElementById("modal_sonderformatPosition");
+        const ceweHinweis = document.getElementById("ceweSonderformatHinweis");
+        const standardHinweis = document.getElementById("sonderformatStandardHinweis");
+
+        sonderformatRadio.disabled = isCeweOnline;
+        ceweHinweis.style.display = isCeweOnline ? "block" : "none";
+        standardHinweis.style.display = isCeweOnline ? "none" : "block";
+
+        // Falls beim Wechsel auf Partner 407 die Option ausgewählt war,
+        // auf eine zulässige Position zurückschalten.
+        if (isCeweOnline && sonderformatRadio.checked) {
+            document.getElementById("modal_normalPosition").checked = true;
+            updateStaffelFields();
+            updateEintrageModusFields();
+        }
+    }
 
     function validateWorkflowArticles() {
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
@@ -1057,6 +1080,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         // Reset article form
         resetArticleForm();
 
+        updateSonderformatAvailability();
         document.getElementById("workflowModal").style.display = "block";
     }
 
@@ -1080,6 +1104,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                 // Populate form fields
                 document.getElementById("modal_name").value = workflow.name || "";
                 document.getElementById("modal_partnerID").value = workflow.partnerID || "";
+                updateSonderformatAvailability();
                 document.getElementById("modal_arbeitsschrittID").value = workflow.arbeitsschrittID || "";
                 document.getElementById("modal_batchID").value = workflow.batchID || "";
                 document.getElementById("modal_zielpfad").value = workflow.zielpfad || "";
@@ -1153,6 +1178,13 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     function addArticleToList() {
         const artNr = document.getElementById("modal_artNr").value;
         const positionType = document.querySelector("input[name='positionType']:checked").value;
+        const partnerID = parseInt(document.getElementById("modal_partnerID").value, 10) || 0;
+
+        if (partnerID === 407 && positionType === "sonderformat") {
+            alert("Für Partner 407 können keine Sonderformat-Positionen hinzugefügt werden.");
+            return;
+        }
+
         const staffelStart = parseInt(document.getElementById("modal_staffelStart").value) || 0;
         const staffelEnde = parseInt(document.getElementById("modal_staffelEnde").value) || 0;
         const eintrageModus = document.querySelector("input[name='eintrageModus']:checked").value;
@@ -1483,6 +1515,14 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     document.addEventListener("DOMContentLoaded", function() {
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
         const positionRadios = document.querySelectorAll("input[name='positionType']");
+        const partnerIDField = document.getElementById("modal_partnerID");
+
+        if (partnerIDField) {
+            partnerIDField.addEventListener("input", updateSonderformatAvailability);
+            partnerIDField.addEventListener("change", updateSonderformatAvailability);
+        }
+
+        updateSonderformatAvailability();
 
         if (bekommtStaffelCheckbox) {
             bekommtStaffelCheckbox.addEventListener("change", function() {
