@@ -77,7 +77,7 @@ function updateHotfolderSettings() {
  */
 function updateGeneralSettings() {
     $fields = array(
-            "NAS_IP", "FILMOMAT_IP"
+            "NAS_IP", "FILMOMAT_IP", "CEWE_ONLINE_SONDERFORMAT_FAKTOR"
     );
 
     $setParts = array();
@@ -623,6 +623,11 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         <div class="form-group">
             <label for="FILMOMAT_IP">FILMOMAT-IP:</label>
             <input type="text" id="FILMOMAT_IP" name="FILMOMAT_IP" value="<?php echo htmlspecialchars($general_settings['FILMOMAT_IP']); ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="CEWE_ONLINE_SONDERFORMAT_FAKTOR">Cewe Online: Sonderformatfaktor</label>
+            <input type="number" id="CEWE_ONLINE_SONDERFORMAT_FAKTOR" min="1" name="CEWE_ONLINE_SONDERFORMAT_FAKTOR" value="<?php echo htmlspecialchars($general_settings['CEWE_ONLINE_SONDERFORMAT_FAKTOR']); ?>">
         </div>
 
         <div class="partner-dvd-section">
