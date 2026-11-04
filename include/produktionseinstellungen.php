@@ -186,13 +186,21 @@ function addWorkflow() {
                 $artNr = mysql_real_escape_string($article["artNr"]);
                 $spezialPosition = intval($article["spezialPosition"]);
                 $zusatzPosition = intval($article["zusatzPosition"]);
+                $sonderformatPosition = intval($article["sonderformatPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
-                $eintrageModus = ($zusatzPosition == 1 && isset($article["eintrageModus"])) ?
-                        mysql_real_escape_string($article["eintrageModus"]) : "anzahl";
 
-                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde, eintrageModus) 
-                                VALUES ($workflowID, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
+                if($zusatzPosition == 1 && isset($article["eintrageModus"])) {
+                    $eintrageModus = mysql_real_escape_string($article["eintrageModus"]);
+                } else if($sonderformatPosition == 1) {
+                    $eintrageModus = "ausMaske";
+                } else {
+                    $eintrageModus = "anzahl";
+                }
+
+                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, sonderformatPosition, staffelStart, staffelEnde, eintrageModus) 
+                                VALUES ($workflowID, '$artNr', $spezialPosition, $zusatzPosition, $sonderformatPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
+
                 mysql_query($articleQuery);
             }
         }
@@ -244,13 +252,19 @@ function updateWorkflow() {
                 $artNr = mysql_real_escape_string($article["artNr"]);
                 $spezialPosition = intval($article["spezialPosition"]);
                 $zusatzPosition = intval($article["zusatzPosition"]);
+                $sonderformatPosition = intval($article["sonderformatPosition"]);
                 $staffelStart = intval($article["staffelStart"]);
                 $staffelEnde = intval($article["staffelEnde"]);
-                $eintrageModus = ($zusatzPosition == 1 && isset($article["eintrageModus"])) ?
-                        mysql_real_escape_string($article["eintrageModus"]) : "anzahl";
+                if($zusatzPosition == 1 && isset($article["eintrageModus"])) {
+                    $eintrageModus = mysql_real_escape_string($article["eintrageModus"]);
+                } else if($sonderformatPosition == 1) {
+                    $eintrageModus = "ausMaske";
+                } else {
+                    $eintrageModus = "anzahl";
+                }
 
-                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, staffelStart, staffelEnde, eintrageModus) 
-                                VALUES ($id, '$artNr', $spezialPosition, $zusatzPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
+                $articleQuery = "INSERT INTO produktionsworkflowsartikelpositionen (workflowID, artNr, spezialPosition, zusatzPosition, sonderformatPosition, staffelStart, staffelEnde, eintrageModus) 
+                                VALUES ($id, '$artNr', $spezialPosition, $zusatzPosition, $sonderformatPosition, $staffelStart, $staffelEnde, '$eintrageModus')";
                 mysql_query($articleQuery);
             }
         }
@@ -369,7 +383,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             margin: 0;
         }
 
-        .zusatz-positions-section {
+        .zusatz-positions-section .sonderformat-positions-section {
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #ddd;
@@ -380,7 +394,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             width: auto;
         }
 
-        .zusatz-positions-section h4 {
+        .zusatz-positions-section .sonderformat-positions-section h4 {
             color: #666;
         }
 
@@ -793,7 +807,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                         <div class="checkbox-group" style="margin-top: 30px;">
                             <label>
                                 <input type="checkbox" name="bekommtStaffel" id="modal_bekommtStaffel">
-                                Bekommt Staffel
+                                Staffelartikel
                             </label>
 
                             <label>
@@ -803,17 +817,17 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
                             <label>
                                 <input type="checkbox" name="bekommtDigiSonderartikel" id="modal_bekommtDigiSonderartikel">
-                                Bekommt Digi-Sonderartikel
+                                Digi-Sonderartikel
                             </label>
 
                             <label>
                                 <input type="checkbox" name="bekommtViesus" id="modal_bekommtViesus">
-                                Bekommt Viesus
+                                Viesus
                             </label>
 
                             <label>
                                 <input type="checkbox" name="bekommtMoebius" id="modal_bekommtMoebius">
-                                Bekommt Moebius
+                                Moebius
                             </label>
                         </div>
                     </form>
@@ -831,6 +845,14 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                             <h4>Zusatzpositionen</h4>
                             <h6><i>Werden automatisch eingetragen, falls Aufträge passende Auftragsposition haben</i></h6>
                             <div id="zusatzPositions">
+                                <!-- Will be populated via JavaScript -->
+                            </div>
+                        </div>
+
+                        <div class="sonderformat-positions-section">
+                            <h4>Sonderformate</h4>
+                            <h6><i>Eingabefeld wird in der Maske angezeigt, falls Auftrag eine dieser Auftragpositionen enthält</i></h6>
+                            <div id="sonderformatPositions">
                                 <!-- Will be populated via JavaScript -->
                             </div>
                         </div>
@@ -862,6 +884,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                                         <input type="radio" name="positionType" value="zusatz" id="modal_zusatzPosition">
                                         Zusatz Position
                                     </label>
+                                    <label>
+                                        <input type="radio" name="positionType" value="sonderformat" id="modal_sonderformatPosition">
+                                        Sonderformat Position
+                                    </label>
                                 </div>
                             </div>
 
@@ -886,6 +912,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                                     <label>
                                         <input type="radio" name="eintrageModus" value="1" id="modal_eintrageModus1">
                                         1x
+                                    </label>
+                                    <label>
+                                        <input hidden type="radio" name="eintrageModus" value="ausMaske" id="modal_eintrageModusausMaske">
+                                        Aus Maske
                                     </label>
                                 </div>
                             </div>
@@ -912,9 +942,9 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
         const saveButton = document.getElementById("saveButton");
 
-        // Zähle normale Positionen (nicht Spezial- oder Zusatzpositionen)
+        // Zähle normale Positionen (nicht Spezial-, Sonderformat- oder Zusatzpositionen)
         const normalArticles = localArticles.filter(article =>
-            article.spezialPosition !== 1 && article.zusatzPosition !== 1
+            article.spezialPosition !== 1 && article.zusatzPosition !== 1 && article.sonderformatPosition !== 1
         );
 
         // Wenn bekommtStaffel nicht gesetzt ist und mehr als 1 normaler Artikel vorhanden
@@ -1069,6 +1099,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                     artNr: article.artNr,
                     spezialPosition: parseInt(article.spezialPosition),
                     zusatzPosition: parseInt(article.zusatzPosition || 0),
+                    sonderformatPosition: parseInt(article.sonderformatPosition || 0),
                     staffelStart: parseInt(article.staffelStart),
                     staffelEnde: parseInt(article.staffelEnde),
                     eintrageModus: article.eintrageModus || "anzahl",
@@ -1143,9 +1174,10 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             artNr: artNr,
             spezialPosition: positionType === "spezial" ? 1 : 0,
             zusatzPosition: positionType === "zusatz" ? 1 : 0,
+            sonderformatPosition: positionType === "sonderformat" ? 1 : 0,
             staffelStart: staffelStart,
             staffelEnde: staffelEnde,
-            eintrageModus: positionType === "zusatz" ? eintrageModus : "anzahl",
+            eintrageModus: positionType === "zusatz" ? eintrageModus : positionType === "sonderformat" ? "ausMaske" : "anzahl",
             isNew: true
         };
 
@@ -1168,12 +1200,13 @@ $partners_ohne_dvd = getPartnersOhneDVD();
     function updateArticlesDisplay() {
         updateNormalArticlesDisplay();
         updateZusatzPositionsDisplay();
+        updateSonderformatPositionsDisplay();
         validateWorkflowArticles();
     }
 
     function updateNormalArticlesDisplay() {
         const container = document.getElementById("assignedArticles");
-        const normalArticles = localArticles.filter(article => article.zusatzPosition !== 1);
+        const normalArticles = localArticles.filter(article => article.zusatzPosition !== 1 && article.sonderformatPosition !== 1);
 
         if (normalArticles.length === 0) {
             container.innerHTML = "<p>Keine normalen Artikel zugewiesen.</p>";
@@ -1196,7 +1229,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             <td>${escapeHtml(article.artNr)}</td>
             <td>${article.spezialPosition === 1 ? "Ja" : "Nein"}</td>
             <td>${article.staffelStart}</td>
-            <td>${article.staffelEnde}</td>
+            <td>${article.staffelEnde === 0 ? "Unbegrenzt" : article.staffelEnde}</td>
             <td>${statusText}</td>
             <td>
                 <button type="button" class="btn btn-danger" onclick="removeArticleFromList(${index})">Entfernen</button>
@@ -1225,6 +1258,37 @@ $partners_ohne_dvd = getPartnersOhneDVD();
             const index = localArticles.indexOf(article);
             const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
             const eintrageModusText = article.eintrageModus === "1" ? "1x" : "Bildanzahl";
+            html += `<tr>
+            <td>${escapeHtml(article.artNr)}</td>
+            <td>${eintrageModusText}</td>
+            <td>${statusText}</td>
+            <td>
+                <button type="button" class="btn btn-danger" onclick="removeArticleFromList(${index})">Entfernen</button>
+            </td>
+        </tr>`;
+        });
+
+        html += "</table>";
+        container.innerHTML = html;
+    }
+
+    function updateSonderformatPositionsDisplay() {
+        const container = document.getElementById("sonderformatPositions");
+        const sonderformatArticles = localArticles.filter(article => article.sonderformatPosition === 1);
+
+        if (sonderformatArticles.length === 0) {
+            container.innerHTML = "<p>Keine Sonderformat-Positionen zugewiesen.</p>";
+            return;
+        }
+
+        let html = "<table><tr><th>Artikel Nr.</th><th>Eintrage-Modus</th><th>Status</th><th>Aktionen</th></tr>";
+
+        sonderformatArticles.sort((a, b) => a.artNr.localeCompare(b.artNr));
+
+        sonderformatArticles.forEach((article) => {
+            const index = localArticles.indexOf(article);
+            const statusText = article.isNew ? "<span style='color: green;'>Neu</span>" : "<span style='color: blue;'>Vorhanden</span>";
+            const eintrageModusText = article.eintrageModus === "ausMaske" ? "Aus Eingabemaske" : "-";
             html += `<tr>
             <td>${escapeHtml(article.artNr)}</td>
             <td>${eintrageModusText}</td>
@@ -1284,7 +1348,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
         const bekommtStaffelCheckbox = document.getElementById("modal_bekommtStaffel");
         const normalArticles = localArticles.filter(article =>
-            article.spezialPosition !== 1 && article.zusatzPosition !== 1
+            article.spezialPosition !== 1 && article.zusatzPosition !== 1 && article.sonderformatPosition !== 1
         );
 
         if (!bekommtStaffelCheckbox.checked && normalArticles.length > 1) {
@@ -1338,7 +1402,7 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 
         // Füge neue Artikel-Inputs hinzu
         localArticles.forEach((article, index) => {
-            const fields = ["artNr", "spezialPosition", "zusatzPosition", "staffelStart", "staffelEnde", "eintrageModus"];
+            const fields = ["artNr", "spezialPosition", "zusatzPosition", "sonderformatPosition", "staffelStart", "staffelEnde", "eintrageModus"];
             fields.forEach(field => {
                 const input = document.createElement("input");
                 input.type = "hidden";
@@ -1433,8 +1497,8 @@ $partners_ohne_dvd = getPartnersOhneDVD();
                 const staffelStartField = document.getElementById("modal_staffelStart");
                 const staffelEndeField = document.getElementById("modal_staffelEnde");
 
-                // Bei Zusatzposition keine Staffel-Felder aktivieren
-                if (this.value === "zusatz" || this.value === "spezial") {
+                // Bei Zusatz-, Spezial- und Sonderformat-Positionen keine Staffel-Felder aktivieren
+                if (this.value === "zusatz" || this.value === "spezial" || this.value === "sonderformat") {
                     staffelStartField.disabled = true;
                     staffelEndeField.disabled = true;
                     staffelStartField.value = "0";
