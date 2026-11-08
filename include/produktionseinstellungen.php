@@ -47,7 +47,7 @@ function getGeneralSettings() {
 
 function updateHotfolderSettings() {
     $fields = array(
-            "NAS_IP", "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
+            "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
             "WAITING_PATH", "CAPTURING_PATH", "BATCHEN_PATH", "FINISHED_PATH",
             "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH",
             "BURNER_NAME", "BURNER_PATH", "DVD_SPACE_FOR_USE", "DVD_MAX_IMAGES"
@@ -517,14 +517,71 @@ $partners_ohne_dvd = getPartnersOhneDVD();
 <?php endif; ?>
 
 <div class="section">
+    <h2>Allgemeine Produktionseinstellungen</h2>
+    <form method="post" id="generalSettingsForm">
+        <input type="hidden" name="action" value="update_general_settings">
+
+        <div class="form-group">
+            <label for="NAS_IP_general">NAS-IP:</label>
+            <input type="text" id="NAS_IP_general" name="NAS_IP" value="<?php echo htmlspecialchars($general_settings['NAS_IP']); ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="FILMOMAT_IP">FILMOMAT-IP:</label>
+            <input type="text" id="FILMOMAT_IP" name="FILMOMAT_IP" value="<?php echo htmlspecialchars($general_settings['FILMOMAT_IP']); ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="CEWE_ONLINE_SONDERFORMAT_FAKTOR">Cewe Online: Sonderformatfaktor</label>
+            <input type="number" id="CEWE_ONLINE_SONDERFORMAT_FAKTOR" min="1" name="CEWE_ONLINE_SONDERFORMAT_FAKTOR" value="<?php echo htmlspecialchars($general_settings['CEWE_ONLINE_SONDERFORMAT_FAKTOR']); ?>">
+        </div>
+
+        <div class="partner-dvd-section">
+            <h3>Partner ohne DVD-Artikel</h3>
+            <p>Hier können Sie festlegen, welche Partner nicht den normalen DVD-Artikel erhalten sollen, damit diese nicht vom automatischen DVD-Hotfolder eingetragen werden.</p>
+
+            <div class="partner-selection-container">
+                <div class="partner-lists">
+                    <div class="partner-list">
+                        <h4>Verfügbare Partner</h4>
+                        <div class="partner-list-content" id="availablePartners">
+                            <?php foreach ($all_partners as $partner): ?>
+                                <?php if ($partner["bekommtDVDArtikel"] == 1): ?>
+                                    <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'available')">
+                                        <?php echo $partner["name"]; ?>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
+                    <div class="partner-controls">
+                        <button type="button" class="btn" onclick="movePartnersToWithoutDVD()">Hinzufügen</button>
+                        <button type="button" class="btn" onclick="movePartnersToAvailable()">Entfernen</button>
+                    </div>
+
+                    <div class="partner-list">
+                        <h4>Partner ohne DVD-Artikel</h4>
+                        <div class="partner-list-content" id="partnersWithoutDVD">
+                            <?php foreach ($partners_ohne_dvd as $partner): ?>
+                                <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'without')">
+                                    <?php echo $partner["name"]; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn">Einstellungen speichern</button>
+    </form>
+</div>
+
+<div class="section">
     <h2>Automatischer Hotfolder</h2>
     <form method="post">
         <input type="hidden" name="action" value="update_hotfolder_settings">
-
-        <div class="form-group">
-            <label for="NAS_IP">NAS-IP:</label>
-            <input type="text" id="NAS_IP" name="NAS_IP" value="<?php echo htmlspecialchars($hotfolder_settings['NAS_IP']); ?>">
-        </div>
 
         <div class="form-group">
             <label for="INPUT_PATH">Eingangspfad:</label>
@@ -604,68 +661,6 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         <div class="form-group">
             <label for="DVD_MAX_IMAGES">DVD Max. Bilder:</label>
             <input type="number" id="DVD_MAX_IMAGES" name="DVD_MAX_IMAGES" value="<?php echo htmlspecialchars($hotfolder_settings['DVD_MAX_IMAGES']); ?>">
-        </div>
-
-        <button type="submit" class="btn">Einstellungen speichern</button>
-    </form>
-</div>
-
-<div class="section">
-    <h2>Allgemeine Produktionseinstellungen</h2>
-    <form method="post" id="generalSettingsForm">
-        <input type="hidden" name="action" value="update_general_settings">
-
-        <div class="form-group">
-            <label for="NAS_IP_general">NAS-IP:</label>
-            <input type="text" id="NAS_IP_general" name="NAS_IP" value="<?php echo htmlspecialchars($general_settings['NAS_IP']); ?>">
-        </div>
-
-        <div class="form-group">
-            <label for="FILMOMAT_IP">FILMOMAT-IP:</label>
-            <input type="text" id="FILMOMAT_IP" name="FILMOMAT_IP" value="<?php echo htmlspecialchars($general_settings['FILMOMAT_IP']); ?>">
-        </div>
-
-        <div class="form-group">
-            <label for="CEWE_ONLINE_SONDERFORMAT_FAKTOR">Cewe Online: Sonderformatfaktor</label>
-            <input type="number" id="CEWE_ONLINE_SONDERFORMAT_FAKTOR" min="1" name="CEWE_ONLINE_SONDERFORMAT_FAKTOR" value="<?php echo htmlspecialchars($general_settings['CEWE_ONLINE_SONDERFORMAT_FAKTOR']); ?>">
-        </div>
-
-        <div class="partner-dvd-section">
-            <h3>Partner ohne DVD-Artikel</h3>
-            <p>Hier können Sie festlegen, welche Partner nicht den normalen DVD-Artikel erhalten sollen, damit diese nicht vom automatischen DVD-Hotfolder eingetragen werden.</p>
-
-            <div class="partner-selection-container">
-                <div class="partner-lists">
-                    <div class="partner-list">
-                        <h4>Verfügbare Partner</h4>
-                        <div class="partner-list-content" id="availablePartners">
-                            <?php foreach ($all_partners as $partner): ?>
-                                <?php if ($partner["bekommtDVDArtikel"] == 1): ?>
-                                    <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'available')">
-                                        <?php echo $partner["name"]; ?>
-                                    </div>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-
-                    <div class="partner-controls">
-                        <button type="button" class="btn" onclick="movePartnersToWithoutDVD()">Hinzufügen</button>
-                        <button type="button" class="btn" onclick="movePartnersToAvailable()">Entfernen</button>
-                    </div>
-
-                    <div class="partner-list">
-                        <h4>Partner ohne DVD-Artikel</h4>
-                        <div class="partner-list-content" id="partnersWithoutDVD">
-                            <?php foreach ($partners_ohne_dvd as $partner): ?>
-                                <div class="partner-item" data-partner-id="<?php echo $partner["ID"]; ?>" onclick="togglePartnerSelection(this, 'without')">
-                                    <?php echo $partner["name"]; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <button type="submit" class="btn">Einstellungen speichern</button>
