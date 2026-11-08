@@ -49,7 +49,7 @@ function updateHotfolderSettings() {
     $fields = array(
             "INPUT_PATH", "OUTPUT_PATH", "WORKING_PATH", "ERROR_PATH",
             "WAITING_PATH", "CAPTURING_PATH", "BATCHEN_PATH", "FINISHED_PATH",
-            "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH",
+            "RAW_PATH", "PRODUCTION_PATH", "REMOTE_FINISHED_PATH", "DVD_LOG_PATH", "NAS_SHARE_NAME",
             "BURNER_NAME", "BURNER_PATH", "DVD_SPACE_FOR_USE", "DVD_MAX_IMAGES"
     );
 
@@ -636,6 +636,11 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         <div class="form-group">
             <label for="DVD_LOG_PATH">DVD-Log-Pfad:</label>
             <input type="text" id="DVD_LOG_PATH" name="DVD_LOG_PATH" value="<?php echo htmlspecialchars($hotfolder_settings['DVD_LOG_PATH']); ?>">
+        </div>
+
+        <div class="form-group">
+            <label for="NAS_SHARE_NAME">Name des Share-Ordners:</label>
+            <input type="text" id="NAS_SHARE_NAME" name="NAS_SHARE_NAME" value="<?php echo htmlspecialchars($hotfolder_settings['NAS_SHARE_NAME']); ?>">
         </div>
 
         <div class="form-group">
