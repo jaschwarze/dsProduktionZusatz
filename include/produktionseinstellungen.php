@@ -634,13 +634,13 @@ $partners_ohne_dvd = getPartnersOhneDVD();
         </div>
 
         <div class="form-group">
-            <label for="REMOTE_FINISHED_PATH">Remote-Finished-Pfad:</label>
-            <input type="text" id="REMOTE_FINISHED_PATH" name="REMOTE_FINISHED_PATH" value="<?php echo htmlspecialchars($hotfolder_settings['REMOTE_FINISHED_PATH']); ?>">
+            <label for="DVD_LOG_PATH">DVD-Log-Pfad:</label>
+            <input type="text" id="DVD_LOG_PATH" name="DVD_LOG_PATH" value="<?php echo htmlspecialchars($hotfolder_settings['DVD_LOG_PATH']); ?>">
         </div>
 
         <div class="form-group">
-            <label for="DVD_LOG_PATH">DVD-Log-Pfad:</label>
-            <input type="text" id="DVD_LOG_PATH" name="DVD_LOG_PATH" value="<?php echo htmlspecialchars($hotfolder_settings['DVD_LOG_PATH']); ?>">
+            <label for="REMOTE_FINISHED_PATH">Remote-Finished-Pfad:</label>
+            <input type="text" id="REMOTE_FINISHED_PATH" name="REMOTE_FINISHED_PATH" value="<?php echo htmlspecialchars($hotfolder_settings['REMOTE_FINISHED_PATH']); ?>">
         </div>
 
         <div class="form-group">
