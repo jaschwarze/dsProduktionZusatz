@@ -38,24 +38,42 @@ try {
         $partner_ids_to_skip[] = $row[0];
     }
 
-    $sql = "SELECT NAS_IP, DVD_LOG_PATH FROM autohotfoldereinstellungen;";
+    $sql = "SELECT DVD_LOG_PATH, NAS_SHARE_NAME FROM autohotfoldereinstellungen;";
     $result = mysql_query($sql);
     if(!$result) {
-        throw new Exception("Konnte die NAS-IP nicht abfragen");
+        throw new Exception("Konnte die Einstellungen aus der DB nicht abfragen");
     }
 
     if(mysql_num_rows($result) != 1) {
-        throw new Exception("Konnte die NAS-IP nicht eindeutig feststellen");
+        throw new Exception("Konnte die Einstellungen aus der DB nicht eindeutig feststellen");
     }
 
     $row = mysql_fetch_assoc($result);
     if(!$row) {
-        throw new Exception("Konnte die NAS-IP nicht auslesen");
+        throw new Exception("Konnte die Einstellungen aus der DB nicht auslesen");
+    }
+
+    $log_path = $row["DVD_LOG_PATH"];
+    $nas_share_name = $row["NAS_SHARE_NAME"];
+
+    $sql = "SELECT NAS_IP FROM produktionsworkflowseinstellungen;";
+    $result = mysql_query($sql);
+    if(!$result) {
+        throw new Exception("Konnte die NAS-IP aus der DB nicht abfragen");
+    }
+
+    if(mysql_num_rows($result) != 1) {
+        throw new Exception("Konnte die NAS-IP aus der DB nicht eindeutig feststellen");
+    }
+
+    $row = mysql_fetch_assoc($result);
+    if(!$row) {
+        throw new Exception("Konnte die NAS-IP aus der DB nicht auslesen");
     }
 
     $nas_IP = $row["NAS_IP"];
-    $log_path = $row["DVD_LOG_PATH"];
-    $dvd_log_path = str_replace("/share/CACHEDEV1_DATA", "", $log_path);
+
+    $dvd_log_path = str_replace($nas_share_name, "", $log_path);
     $dvd_log_path = str_replace("/", "\\", $dvd_log_path);
     $dvd_log_path = "\\\\".$nas_IP.$dvd_log_path;
 
